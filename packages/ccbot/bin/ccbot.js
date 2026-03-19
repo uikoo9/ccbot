@@ -2,7 +2,6 @@
 
 import { Command } from 'commander';
 import { execSync } from 'child_process';
-import { init } from '../dist/init.js';
 import { start, status } from '../dist/start.js';
 import { stop } from '../dist/stop.js';
 
@@ -11,15 +10,8 @@ const program = new Command();
 program.name('ccbot').description('Control Claude Code via Feishu bot').version('0.0.1');
 
 program
-  .command('init')
-  .description('Initialize ccbot config interactively')
-  .action(async () => {
-    await init();
-  });
-
-program
   .command('start')
-  .description('Start ccbot server via pm2')
+  .description('Start ccbot server (will prompt for config on first run)')
   .action(async () => {
     await start();
   });

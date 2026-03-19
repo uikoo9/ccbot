@@ -269,3 +269,4 @@ yarn.lock
 .npmrc
 .cc.sh
 configs
+ccbot.json
