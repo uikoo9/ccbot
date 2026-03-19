@@ -15,20 +15,20 @@ export function createFeishuClient(config: FeishuConfig) {
   });
 }
 
-export function createEventDispatcher(onMessage: (userId: string, messageId: string, text: string) => void) {
+export function createEventDispatcher(onMessage: (chatId: string, messageId: string, text: string) => void) {
   return new lark.EventDispatcher({}).register({
     'im.message.receive_v1': async (data: any) => {
       const message = data.message;
       if (!message || message.message_type !== 'text') return;
 
-      const userId = data.sender?.sender_id?.open_id;
+      const chatId = message.chat_id;
       const messageId = message.message_id;
 
       try {
         const content = JSON.parse(message.content);
         const text = content.text?.trim();
-        if (text && userId && messageId) {
-          onMessage(userId, messageId, text);
+        if (text && chatId && messageId) {
+          onMessage(chatId, messageId, text);
         }
       } catch {
         // ignore non-text messages

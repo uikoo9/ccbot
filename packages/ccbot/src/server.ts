@@ -37,17 +37,17 @@ async function main() {
     }
   });
 
-  const eventDispatcher = createEventDispatcher((userId, messageId, text) => {
+  const eventDispatcher = createEventDispatcher((chatId, messageId, text) => {
     const replyFn = (msg: string) => sendReply(client, messageId, msg);
 
     if (text === '/new') {
-      sessionManager.resetSession(userId);
+      sessionManager.resetSession(chatId);
       replyFn('会话已重置，开始新的对话').catch(console.error);
       return;
     }
 
     if (text === '/status') {
-      const info = sessionManager.getSessionInfo(userId);
+      const info = sessionManager.getSessionInfo(chatId);
       if (!info) {
         replyFn('暂无会话').catch(console.error);
       } else {
@@ -57,7 +57,7 @@ async function main() {
       return;
     }
 
-    const session = sessionManager.getSession(userId);
+    const session = sessionManager.getSession(chatId);
     session.enqueue(text, replyFn).catch(console.error);
   });
 

@@ -101,6 +101,16 @@ export async function stop() {
   }
 }
 
+export async function restart() {
+  const { execSync } = await import('child_process');
+  try {
+    execSync(`pm2 restart ${PROCESS_NAME}`, { stdio: 'inherit' });
+    console.log(pc.green('✔ ccbot restarted.'));
+  } catch {
+    console.error(pc.red('Failed to restart ccbot. Is it running? Try "ccbot start" instead.'));
+  }
+}
+
 export async function status() {
   const { execSync } = await import('child_process');
   try {

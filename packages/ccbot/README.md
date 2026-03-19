@@ -16,7 +16,7 @@ Control your local Claude Code via Feishu (Lark) bot.
 ## Install
 
 ```bash
-npm install -g ccbot
+npm install -g @ccbot/cli
 ```
 
 ## Setup Feishu Bot
@@ -61,6 +61,7 @@ Config is saved to `ccbot.json` in the current directory. Subsequent runs skip t
 ```bash
 ccbot start    # Start server (prompts config on first run)
 ccbot stop     # Stop server
+ccbot restart  # Restart server (use after updating)
 ccbot status   # Show process status
 ccbot logs     # Show server logs
 ```
