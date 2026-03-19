@@ -1,11 +1,16 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { resolve } from 'path';
+import { resolve, basename } from 'path';
 import inquirer from 'inquirer';
 import pc from 'picocolors';
 import { ensurePm2, connectPm2, startOrReload, disconnectPm2, savePm2 } from './pm2.js';
 
 const CONFIG_FILE = 'ccbot.json';
-const PROCESS_NAME = 'ccbot';
+
+export function getProcessName(configPath: string): string {
+  const config = JSON.parse(readFileSync(configPath, 'utf-8'));
+  const workDir = config.claude?.workDir || process.cwd();
+  return `ccbot-${basename(workDir)}`;
+}
 
 async function ensureConfig(): Promise<string> {
   const configPath = resolve(process.cwd(), CONFIG_FILE);
@@ -76,46 +81,53 @@ async function ensureConfig(): Promise<string> {
 
 export async function start() {
   const configPath = await ensureConfig();
+  const processName = getProcessName(configPath);
 
   ensurePm2();
   await connectPm2();
 
   try {
     const serverScript = new URL('./server.js', import.meta.url).pathname;
-    await startOrReload(PROCESS_NAME, serverScript, configPath);
+    await startOrReload(processName, serverScript, configPath);
     savePm2();
-    console.log(pc.green(`✔ ccbot started. Use "ccbot logs" to view output.`));
+    console.log(pc.green(`✔ ${processName} started. Use "ccbot logs" to view output.`));
   } finally {
     disconnectPm2();
   }
 }
 
 export async function stop() {
+  const configPath = resolve(process.cwd(), CONFIG_FILE);
+  const processName = existsSync(configPath) ? getProcessName(configPath) : 'ccbot';
   const { execSync } = await import('child_process');
   try {
-    execSync(`pm2 stop ${PROCESS_NAME}`, { stdio: 'inherit' });
-    execSync(`pm2 delete ${PROCESS_NAME}`, { stdio: 'inherit' });
-    console.log(pc.green('✔ ccbot stopped.'));
+    execSync(`pm2 stop ${processName}`, { stdio: 'inherit' });
+    execSync(`pm2 delete ${processName}`, { stdio: 'inherit' });
+    console.log(pc.green(`✔ ${processName} stopped.`));
   } catch {
-    console.error(pc.red('Failed to stop ccbot. Is it running?'));
+    console.error(pc.red(`Failed to stop ${processName}. Is it running?`));
   }
 }
 
 export async function restart() {
+  const configPath = resolve(process.cwd(), CONFIG_FILE);
+  const processName = existsSync(configPath) ? getProcessName(configPath) : 'ccbot';
   const { execSync } = await import('child_process');
   try {
-    execSync(`pm2 restart ${PROCESS_NAME}`, { stdio: 'inherit' });
-    console.log(pc.green('✔ ccbot restarted.'));
+    execSync(`pm2 restart ${processName}`, { stdio: 'inherit' });
+    console.log(pc.green(`✔ ${processName} restarted.`));
   } catch {
-    console.error(pc.red('Failed to restart ccbot. Is it running? Try "ccbot start" instead.'));
+    console.error(pc.red(`Failed to restart ${processName}. Is it running? Try "ccbot start" instead.`));
   }
 }
 
 export async function status() {
+  const configPath = resolve(process.cwd(), CONFIG_FILE);
+  const processName = existsSync(configPath) ? getProcessName(configPath) : 'ccbot';
   const { execSync } = await import('child_process');
   try {
-    execSync(`pm2 describe ${PROCESS_NAME}`, { stdio: 'inherit' });
+    execSync(`pm2 describe ${processName}`, { stdio: 'inherit' });
   } catch {
-    console.log(pc.yellow('ccbot is not running.'));
+    console.log(pc.yellow(`${processName} is not running.`));
   }
 }

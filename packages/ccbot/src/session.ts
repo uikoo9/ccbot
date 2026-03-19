@@ -10,7 +10,12 @@ class UserSession {
   isNew = true;
   queue: QueueItem[] = [];
   busy = false;
-  private processor: (message: string, sessionId: string, isNew: boolean, reply: (text: string) => Promise<void>) => Promise<void>;
+  private processor: (
+    message: string,
+    sessionId: string,
+    isNew: boolean,
+    reply: (text: string) => Promise<void>,
+  ) => Promise<void>;
 
   constructor(processor: UserSession['processor']) {
     this.sessionId = uuidv4();
@@ -52,24 +57,24 @@ export class SessionManager {
     this.processor = processor;
   }
 
-  getSession(userId: string): UserSession {
-    let session = this.sessions.get(userId);
+  getSession(chatId: string): UserSession {
+    let session = this.sessions.get(chatId);
     if (!session) {
       session = new UserSession(this.processor);
-      this.sessions.set(userId, session);
+      this.sessions.set(chatId, session);
     }
     return session;
   }
 
-  resetSession(userId: string) {
-    const session = this.sessions.get(userId);
+  resetSession(chatId: string) {
+    const session = this.sessions.get(chatId);
     if (session) {
       session.reset();
     }
   }
 
-  getSessionInfo(userId: string): { sessionId: string; queueLength: number; busy: boolean } | null {
-    const session = this.sessions.get(userId);
+  getSessionInfo(chatId: string): { sessionId: string; queueLength: number; busy: boolean } | null {
+    const session = this.sessions.get(chatId);
     if (!session) return null;
     return {
       sessionId: session.sessionId,
