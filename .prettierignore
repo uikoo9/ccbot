@@ -1,0 +1,21 @@
+# project
+.nx
+node_modules
+package-lock.json
+docs
+
+# packages
+.sh
+.py
+.log
+.ico
+.txt
+.xml
+.drawio
+.dockerignore
+Dockerfile
+packages/aitubiao-server/static
+packages/aibaiban-server/static
+packages/mcp-admin-server/static
+packages/mcp-index-server/static
+packages/remotion-server/static

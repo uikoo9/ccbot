@@ -1,0 +1,29 @@
+{
+  "name": "ccbot",
+  "version": "0.0.1",
+  "description": "Control Claude Code via Feishu bot",
+  "type": "module",
+  "bin": {
+    "ccbot": "./bin/ccbot.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest --run"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "dependencies": {
+    "@larksuiteoapi/node-sdk": "^1.59.0",
+    "commander": "^13.0.0",
+    "inquirer": "^12.0.0",
+    "picocolors": "^1.1.0",
+    "pm2": "^6.0.0",
+    "uuid": "^11.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  },
+  "license": "MIT"
+}

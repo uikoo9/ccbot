@@ -1,0 +1,44 @@
+{
+  "name": "ccbot-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "prepare": "husky",
+    "build": "lerna run build",
+    "prettier": "prettier --check .",
+    "prettier:fix": "prettier --write .",
+    "eslint": "eslint .",
+    "eslint:fix": "eslint --fix .",
+    "test": "vitest --run",
+    "lint": "npm run build && npm run test && npm run prettier:fix && npm run eslint:fix",
+    "cz": "cz",
+    "pb": "lerna publish",
+    "graph": "nx graph",
+    "update": "ncu -u && npm --workspaces exec -- ncu -u",
+    "clean": "nx reset"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "@eslint/js": "^10.0.1",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^10.0.3",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lerna": "^9.0.7",
+    "lint-staged": "^16.4.0",
+    "npm-check-updates": "^19.6.5",
+    "nx": "^22.5.4",
+    "prettier": "^3.8.1",
+    "typescript-eslint": "^8.57.1",
+    "vitest": "^4.1.0"
+  }
+}
