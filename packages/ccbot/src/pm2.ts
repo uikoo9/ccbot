@@ -53,6 +53,7 @@ export function startOrReload(name: string, script: string, configPath: string):
             args: configPath,
             interpreter: 'node',
             interpreter_args: '--experimental-specifier-resolution=node',
+            log_date_format: 'YYYY-MM-DD HH:mm:ss',
           },
           (err) => {
             if (err) return reject(err);
