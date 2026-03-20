@@ -2,7 +2,7 @@
 
 Control your local Claude Code via Feishu (Lark) bot.
 
-[中文文档](./README.zh-CN.md)
+[中文文档](https://github.com/uikoo9/ccbot/blob/main/packages/ccbot/README.zh-CN.md)
 
 ## Features
 
