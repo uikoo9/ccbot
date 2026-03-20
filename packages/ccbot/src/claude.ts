@@ -8,14 +8,13 @@ export interface ClaudeConfig {
   baseUrl: string;
 }
 
-export function runClaude(prompt: string, sessionId: string, config: ClaudeConfig): Promise<string> {
+export function runClaude(prompt: string, sessionId: string, isNew: boolean, config: ClaudeConfig): Promise<string> {
   return new Promise((resolve, reject) => {
     const args = [
       '--print',
       '--output-format',
       'text',
-      '--session-id',
-      sessionId,
+      ...(isNew ? ['--session-id', sessionId] : ['--resume', sessionId]),
       '--dangerously-skip-permissions',
       '-p',
       prompt,

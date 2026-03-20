@@ -26,10 +26,10 @@ async function main() {
   const config = loadConfig();
   const client = createFeishuClient(config.feishu);
 
-  const sessionManager = new SessionManager(async (message, sessionId, reply) => {
+  const sessionManager = new SessionManager(async (message, sessionId, isNew, reply) => {
     await reply('正在处理...');
     try {
-      const result = await runClaude(message, sessionId, config.claude);
+      const result = await runClaude(message, sessionId, isNew, config.claude);
       await reply(result || '(无输出)');
     } catch (err: any) {
       const errMsg = err.message === '执行超时' ? '执行超时，请重试或简化问题' : `执行出错: ${err.message}`;

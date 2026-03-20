@@ -7,9 +7,10 @@ interface QueueItem {
 
 class UserSession {
   sessionId: string;
+  isNew = true;
   queue: QueueItem[] = [];
   busy = false;
-  private processor: (message: string, sessionId: string, reply: (text: string) => Promise<void>) => Promise<void>;
+  private processor: (message: string, sessionId: string, isNew: boolean, reply: (text: string) => Promise<void>) => Promise<void>;
 
   constructor(processor: UserSession['processor']) {
     this.sessionId = uuidv4();
@@ -18,6 +19,7 @@ class UserSession {
 
   reset() {
     this.sessionId = uuidv4();
+    this.isNew = true;
   }
 
   async enqueue(message: string, reply: (text: string) => Promise<void>) {
@@ -30,10 +32,11 @@ class UserSession {
 
     this.busy = true;
     try {
-      await this.processor(message, this.sessionId, reply);
+      await this.processor(message, this.sessionId, this.isNew, reply);
+      this.isNew = false;
       while (this.queue.length > 0) {
         const next = this.queue.shift()!;
-        await this.processor(next.message, this.sessionId, next.reply);
+        await this.processor(next.message, this.sessionId, this.isNew, next.reply);
       }
     } finally {
       this.busy = false;
