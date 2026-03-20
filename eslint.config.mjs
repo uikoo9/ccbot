@@ -10,7 +10,7 @@ export default [
   {
     files: ['**/*.cjs', '**/*.config.js', '.*rc.js'],
     languageOptions: {
-      globals: { module: 'readonly', require: 'readonly', __dirname: 'readonly' },
+      globals: { module: 'readonly', require: 'readonly', __dirname: 'readonly', process: 'readonly' },
     },
   },
   {

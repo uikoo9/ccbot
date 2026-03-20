@@ -1,0 +1,5 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 绿色主题背景 + 深色文字，字体占比 70%，圆角 12px -->
+  <rect width="128" height="128" rx="12" fill="#22C55E"/>
+  <text x="64" y="96" font-family="Arial, sans-serif" font-size="90" font-weight="900" fill="#0F172A" text-anchor="middle">W</text>
+</svg>

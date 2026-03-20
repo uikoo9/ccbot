@@ -17,7 +17,9 @@
     "pb": "lerna publish",
     "graph": "nx graph",
     "update": "ncu -u && npm --workspaces exec -- ncu -u",
-    "clean": "nx reset"
+    "clean": "nx reset",
+    "index:dev": "npm run dev -w packages/ccbot-index",
+    "index:build": "npm run build -w packages/ccbot-index"
   },
   "config": {
     "commitizen": {
