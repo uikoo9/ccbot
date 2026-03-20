@@ -36,6 +36,22 @@ npm install -g @ccbot/cli
 | `im:message:send_as_bot`           | 以机器人身份发送/回复消息    |
 | `im:message:update`                | 更新消息内容，用于流式输出   |
 
+也可以通过 JSON 直接导入权限：
+
+```json
+{
+  "scopes": {
+    "tenant": [
+      "im:message.group_at_msg:readonly",
+      "im:message.p2p_msg:readonly",
+      "im:message:send_as_bot",
+      "im:message:update"
+    ],
+    "user": []
+  }
+}
+```
+
 6. 发布应用，记下 App ID 和 App Secret
 
 ### 第三步：启动

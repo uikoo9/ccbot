@@ -34,6 +34,22 @@ npm install -g @ccbot/cli
 | `im:message:send_as_bot`           | Send/reply messages as the bot              |
 | `im:message:update`                | Update message content for streaming output |
 
+You can also import permissions via JSON:
+
+```json
+{
+  "scopes": {
+    "tenant": [
+      "im:message.group_at_msg:readonly",
+      "im:message.p2p_msg:readonly",
+      "im:message:send_as_bot",
+      "im:message:update"
+    ],
+    "user": []
+  }
+}
+```
+
 6. Publish the app, note down App ID and App Secret
 
 ## Usage

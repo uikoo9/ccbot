@@ -26,6 +26,23 @@ npm install -g ccbot
 3. 事件订阅 → 订阅方式选择「长连接」
 4. 添加事件：`im.message.receive_v1`
 5. 权限：`im:message.p2p_msg:readonly`、`im:message.group_at_msg:readonly`、`im:message:send_as_bot`、`im:message:update`
+
+   也可以通过 JSON 直接导入权限：
+
+   ```json
+   {
+     "scopes": {
+       "tenant": [
+         "im:message.group_at_msg:readonly",
+         "im:message.p2p_msg:readonly",
+         "im:message:send_as_bot",
+         "im:message:update"
+       ],
+       "user": []
+     }
+   }
+   ```
+
 6. 发布应用
 
 ### 2. 初始化配置
