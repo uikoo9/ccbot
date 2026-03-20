@@ -4,6 +4,8 @@ export interface ClaudeConfig {
   bin: string;
   workDir: string;
   timeoutMs: number;
+  authToken: string;
+  baseUrl: string;
 }
 
 export function runClaude(prompt: string, sessionId: string, config: ClaudeConfig): Promise<string> {
@@ -21,7 +23,11 @@ export function runClaude(prompt: string, sessionId: string, config: ClaudeConfi
 
     const child = spawn(config.bin, args, {
       cwd: config.workDir,
-      env: { ...process.env },
+      env: {
+        ...process.env,
+        ANTHROPIC_AUTH_TOKEN: config.authToken,
+        ANTHROPIC_BASE_URL: config.baseUrl,
+      },
       stdio: ['pipe', 'pipe', 'pipe'],
     });
 
