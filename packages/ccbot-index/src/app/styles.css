@@ -118,6 +118,20 @@ body {
   align-items: center;
 }
 
+.github-link {
+  color: var(--color-primary);
+  display: inline-flex;
+  transition: opacity var(--transition-duration);
+}
+
+.github-link:visited {
+  color: var(--color-primary);
+}
+
+.github-link:hover {
+  opacity: 0.8;
+}
+
 .header-loading-placeholder {
   width: 40px;
   height: 40px;
