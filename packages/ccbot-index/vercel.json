@@ -1,4 +1,0 @@
-{
-  "installCommand": "npm install --prefix=../..",
-  "buildCommand": "cd ../.. && npm run index:build"
-}
