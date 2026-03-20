@@ -58,6 +58,12 @@ async function ensureConfig(): Promise<string> {
       message: 'Timeout in ms (press enter for default):',
       default: 300000,
     },
+    {
+      type: 'input',
+      name: 'workDir',
+      message: 'Work directory (press enter for current directory):',
+      default: '',
+    },
   ]);
 
   const config = {
@@ -67,7 +73,7 @@ async function ensureConfig(): Promise<string> {
     },
     claude: {
       bin: answers.claudeBin.trim(),
-      workDir: process.cwd(),
+      workDir: answers.workDir.trim() || process.cwd(),
       timeoutMs: answers.timeoutMs,
       authToken: answers.authToken.trim(),
       baseUrl: answers.baseUrl.trim(),
