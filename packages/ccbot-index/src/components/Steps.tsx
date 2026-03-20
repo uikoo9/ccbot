@@ -25,9 +25,10 @@ interface StepProps {
   titleKey: string;
   descriptionKey: string;
   codeKey?: string;
+  codeLanguage?: string;
 }
 
-function Step({ titleKey, descriptionKey, codeKey }: StepProps) {
+function Step({ titleKey, descriptionKey, codeKey, codeLanguage = 'bash' }: StepProps) {
   const t = useTranslations();
 
   const renderDescription = () => {
@@ -72,7 +73,7 @@ function Step({ titleKey, descriptionKey, codeKey }: StepProps) {
       {/* Code Block */}
       {codeKey ? (
         <div className="step-code-block">
-          <CodeHighlight code={t(codeKey)} language="bash" />
+          <CodeHighlight code={t(codeKey)} language={codeLanguage} />
         </div>
       ) : null}
     </div>
@@ -90,7 +91,7 @@ export function Steps() {
 
         {/* Steps */}
         <div>
-          <Step titleKey="step1Title" descriptionKey="step1Description" />
+          <Step titleKey="step1Title" descriptionKey="step1Description" codeKey="step1Code" codeLanguage="json" />
 
           <Step titleKey="step2Title" descriptionKey="step2Description" codeKey="step2Code" />
 
