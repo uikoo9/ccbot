@@ -31,6 +31,14 @@ program
   });
 
 program
+  .command('restart')
+  .description('Restart ccbot server (use after updating)')
+  .action(async () => {
+    const { restart } = await import('../dist/start.js');
+    await restart();
+  });
+
+program
   .command('logs')
   .description('Show ccbot logs')
   .action(() => {
