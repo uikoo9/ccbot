@@ -33,7 +33,7 @@ export function WebsiteSchema() {
           width: 512,
           height: 512,
         },
-        sameAs: ['https://github.com/anthropics/claude-code'],
+        sameAs: ['https://github.com/uikoo9/ccbot'],
       },
       {
         '@type': 'WebPage',
