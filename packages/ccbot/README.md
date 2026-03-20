@@ -27,11 +27,12 @@ npm install -g @ccbot/cli
 4. Add event: `im.message.receive_v1`
 5. Enable the following permissions:
 
-| Scope | Description |
-|-------|-------------|
-| `im:message.p2p_msg:readonly` | Receive direct messages sent to the bot |
-| `im:message.group_at_msg:readonly` | Receive @bot messages in group chats |
-| `im:message:send_as_bot` | Send/reply messages as the bot |
+| Scope                              | Description                                 |
+| ---------------------------------- | ------------------------------------------- |
+| `im:message.p2p_msg:readonly`      | Receive direct messages sent to the bot     |
+| `im:message.group_at_msg:readonly` | Receive @bot messages in group chats        |
+| `im:message:send_as_bot`           | Send/reply messages as the bot              |
+| `im:message:update`                | Update message content for streaming output |
 
 6. Publish the app, note down App ID and App Secret
 
@@ -70,10 +71,10 @@ ccbot logs     # Show server logs
 
 Send these in the Feishu bot conversation:
 
-| Command | Description |
-|---------|-------------|
-| `/new` | Reset session, start a new conversation |
-| `/status` | Show current session status |
+| Command   | Description                             |
+| --------- | --------------------------------------- |
+| `/new`    | Reset session, start a new conversation |
+| `/status` | Show current session status             |
 
 ## Config
 

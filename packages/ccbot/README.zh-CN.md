@@ -29,11 +29,12 @@ npm install -g @ccbot/cli
 4. 添加事件：`im.message.receive_v1`（接收消息）
 5. 进入「权限管理」，开通以下权限：
 
-| 权限 Scope | 说明 |
-|------------|------|
-| `im:message.p2p_msg:readonly` | 接收用户发给机器人的私聊消息 |
-| `im:message.group_at_msg:readonly` | 接收群聊中 @机器人 的消息 |
-| `im:message:send_as_bot` | 以机器人身份发送/回复消息 |
+| 权限 Scope                         | 说明                         |
+| ---------------------------------- | ---------------------------- |
+| `im:message.p2p_msg:readonly`      | 接收用户发给机器人的私聊消息 |
+| `im:message.group_at_msg:readonly` | 接收群聊中 @机器人 的消息    |
+| `im:message:send_as_bot`           | 以机器人身份发送/回复消息    |
+| `im:message:update`                | 更新消息内容，用于流式输出   |
 
 6. 发布应用，记下 App ID 和 App Secret
 
@@ -58,14 +59,14 @@ ccbot start
 
 各项说明：
 
-| 配置项 | 说明 |
-|--------|------|
-| Claude Code path | Claude Code 可执行文件路径，默认 `claude` |
-| Anthropic Base URL | Anthropic API 地址 |
-| Anthropic Auth Token | Anthropic API 认证 Token |
-| Feishu App ID | 飞书应用的 App ID |
-| Feishu App Secret | 飞书应用的 App Secret |
-| Timeout in ms | 单次执行超时时间，默认 5 分钟 |
+| 配置项               | 说明                                      |
+| -------------------- | ----------------------------------------- |
+| Claude Code path     | Claude Code 可执行文件路径，默认 `claude` |
+| Anthropic Base URL   | Anthropic API 地址                        |
+| Anthropic Auth Token | Anthropic API 认证 Token                  |
+| Feishu App ID        | 飞书应用的 App ID                         |
+| Feishu App Secret    | 飞书应用的 App Secret                     |
+| Timeout in ms        | 单次执行超时时间，默认 5 分钟             |
 
 配置保存到当前目���的 `ccbot.json`，后续启动自动使用，无需重复填写。
 
@@ -89,9 +90,9 @@ ccbot logs     # 查看日志
 
 在飞书机器人对话中发送：
 
-| 命令 | 说明 |
-|------|------|
-| `/new` | 重置会话，开始新对话 |
+| 命令      | 说明                                                 |
+| --------- | ---------------------------------------------------- |
+| `/new`    | 重置会话，开始新对话                                 |
 | `/status` | 查看当前会话状态（Session ID、是否执行中、队列长度） |
 
 ## 配置文件
@@ -114,15 +115,15 @@ ccbot logs     # 查看日志
 }
 ```
 
-| 字段 | 必填 | 默认值 | 说明 |
-|------|------|--------|------|
-| feishu.appId | 是 | - | 飞书应用 App ID |
-| feishu.appSecret | 是 | - | 飞书应用 App Secret |
-| claude.bin | 否 | `claude` | Claude Code 可执行文件路径 |
-| claude.workDir | 自动 | 当前目录 | Claude Code 工作目录 |
-| claude.timeoutMs | 否 | `300000` | 单次执行超时时间(ms) |
-| claude.authToken | 是 | - | Anthropic API Token |
-| claude.baseUrl | 是 | - | Anthropic API 地址 |
+| 字段             | 必填 | 默认值   | 说明                       |
+| ---------------- | ---- | -------- | -------------------------- |
+| feishu.appId     | 是   | -        | 飞书应用 App ID            |
+| feishu.appSecret | 是   | -        | 飞书应用 App Secret        |
+| claude.bin       | 否   | `claude` | Claude Code 可执行文件路径 |
+| claude.workDir   | 自动 | 当前目录 | Claude Code 工作目录       |
+| claude.timeoutMs | 否   | `300000` | 单次执行超时时间(ms)       |
+| claude.authToken | 是   | -        | Anthropic API Token        |
+| claude.baseUrl   | 是   | -        | Anthropic API 地址         |
 
 注意：`ccbot.json` 包含敏感信息，请勿提交到版本控制。
 
