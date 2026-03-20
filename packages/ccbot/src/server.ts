@@ -31,8 +31,11 @@ async function main() {
     try {
       const result = await runClaude(message, sessionId, isNew, config.claude);
       await reply(result || '(无输出)');
-    } catch (err: any) {
-      const errMsg = err.message === '执行超时' ? '执行超时，请重试或简化问题' : `执行出错: ${err.message}`;
+    } catch (err: unknown) {
+      const errMsg =
+        err instanceof Error && err.message === '执行超时'
+          ? '执行超时，请重试或简化问题'
+          : `执行出错: ${err instanceof Error ? err.message : err}`;
       await reply(errMsg);
     }
   });
@@ -51,7 +54,7 @@ async function main() {
       if (!info) {
         replyFn('暂无会话').catch(console.error);
       } else {
-        const msg = `Session: ${info.sessionId}\n状态: ${info.busy ? '执行中' : '空闲'}\n队列: ${info.queueLength} 条`;
+        const msg = `Session: ${info.sessionId}\n项目目录: ${config.claude.workDir}\n状态: ${info.busy ? '执行中' : '空闲'}\n队列: ${info.queueLength} 条`;
         replyFn(msg).catch(console.error);
       }
       return;

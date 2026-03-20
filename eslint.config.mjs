@@ -13,4 +13,10 @@ export default [
       globals: { module: 'readonly', require: 'readonly', __dirname: 'readonly' },
     },
   },
+  {
+    files: ['**/bin/**/*.js'],
+    languageOptions: {
+      globals: { process: 'readonly', console: 'readonly' },
+    },
+  },
 ];

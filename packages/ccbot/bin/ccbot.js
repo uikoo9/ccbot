@@ -2,8 +2,15 @@
 
 import { Command } from 'commander';
 import { execSync } from 'child_process';
-import { start, status } from '../dist/start.js';
+import { existsSync } from 'fs';
+import { resolve } from 'path';
+import { start, status, getProcessName } from '../dist/start.js';
 import { stop } from '../dist/stop.js';
+
+function resolveProcessName() {
+  const configPath = resolve(process.cwd(), 'ccbot.json');
+  return existsSync(configPath) ? getProcessName(configPath) : 'ccbot';
+}
 
 const program = new Command();
 
@@ -42,8 +49,9 @@ program
   .command('logs')
   .description('Show ccbot logs')
   .action(() => {
+    const name = resolveProcessName();
     try {
-      execSync('pm2 logs ccbot --lines 50', { stdio: 'inherit' });
+      execSync(`pm2 logs ${name} --lines 50`, { stdio: 'inherit' });
     } catch {
       console.error('Failed to show logs. Is pm2 installed?');
     }
