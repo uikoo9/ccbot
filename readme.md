@@ -25,7 +25,7 @@ npm install -g ccbot
 2. 添加「机器人」能力
 3. 事件订阅 → 订阅方式选择「长连接」
 4. 添加事件：`im.message.receive_v1`
-5. 权限：`im:message`、`im:message.receive_v1`
+5. 权限：`im:message.p2p_msg:readonly`、`im:message.group_at_msg:readonly`、`im:message:send_as_bot`、`im:message:update`
 6. 发布应用
 
 ### 2. 初始化配置
@@ -52,10 +52,10 @@ ccbot logs      # 查看日志
 
 ## 飞书对话命令
 
-| 命令 | 说明 |
-|------|------|
-| `/new` | 重置会话，开始新对话 |
-| `/status` | 查看当前会话状态 |
+| 命令      | 说明                 |
+| --------- | -------------------- |
+| `/new`    | 重置会话，开始新对话 |
+| `/status` | 查看当前会话状态     |
 
 ## 配置
 
