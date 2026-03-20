@@ -1,6 +1,6 @@
 {
   "name": "@ccbot/index",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "private": true,
   "description": "Official website for ccbot - Claude Code Bot for Feishu/Slack/Discord/Telegram",
   "scripts": {
