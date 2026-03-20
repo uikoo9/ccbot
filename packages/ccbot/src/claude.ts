@@ -8,7 +8,13 @@ export interface ClaudeConfig {
   baseUrl: string;
 }
 
-export function runClaude(prompt: string, sessionId: string, isNew: boolean, config: ClaudeConfig): Promise<string> {
+export function runClaude(
+  prompt: string,
+  sessionId: string,
+  isNew: boolean,
+  config: ClaudeConfig,
+  onData?: (accumulated: string) => void,
+): Promise<string> {
   return new Promise((resolve, reject) => {
     const args = [
       '--print',
@@ -35,6 +41,7 @@ export function runClaude(prompt: string, sessionId: string, isNew: boolean, con
 
     child.stdout.on('data', (data: Buffer) => {
       stdout += data.toString();
+      onData?.(stdout);
     });
 
     child.stderr.on('data', (data: Buffer) => {

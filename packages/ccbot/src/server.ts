@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { createFeishuClient, createEventDispatcher, startWsClient, sendReply } from './feishu.js';
+import { createFeishuClient, createEventDispatcher, startWsClient, sendReply, updateMessage } from './feishu.js';
 import { runClaude, type ClaudeConfig } from './claude.js';
 import { SessionManager } from './session.js';
 
@@ -27,11 +27,29 @@ async function main() {
   const client = createFeishuClient(config.feishu);
 
   const sessionManager = new SessionManager(async (message, sessionId, isNew, reply) => {
-    await reply('正在处理...');
+    const replyMsgId = await reply('正在处理...');
+    let accumulated = '';
+    let lastUpdated = '';
+
+    const timer = setInterval(async () => {
+      if (accumulated && accumulated !== lastUpdated && replyMsgId) {
+        lastUpdated = accumulated;
+        try {
+          await updateMessage(client, replyMsgId, accumulated);
+        } catch {
+          // ignore update errors
+        }
+      }
+    }, 3000);
+
     try {
-      const result = await runClaude(message, sessionId, isNew, config.claude);
+      const result = await runClaude(message, sessionId, isNew, config.claude, (text) => {
+        accumulated = text;
+      });
+      clearInterval(timer);
       await reply(result || '(无输出)');
     } catch (err: unknown) {
+      clearInterval(timer);
       const errMsg =
         err instanceof Error && err.message === '执行超时'
           ? '执行超时，请重试或简化问题'

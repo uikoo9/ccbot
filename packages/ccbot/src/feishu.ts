@@ -17,6 +17,7 @@ export function createFeishuClient(config: FeishuConfig) {
 
 export function createEventDispatcher(onMessage: (chatId: string, messageId: string, text: string) => void) {
   return new lark.EventDispatcher({}).register({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     'im.message.receive_v1': async (data: any) => {
       const message = data.message;
       if (!message || message.message_type !== 'text') return;
@@ -47,10 +48,9 @@ export async function startWsClient(config: FeishuConfig, eventDispatcher: Retur
   return wsClient;
 }
 
-export async function sendReply(client: lark.Client, messageId: string, text: string) {
+export async function sendReply(client: lark.Client, messageId: string, text: string): Promise<string | undefined> {
   if (text.length <= MAX_MSG_LEN) {
-    await replyMessage(client, messageId, text);
-    return;
+    return await replyMessage(client, messageId, text);
   }
 
   const chunks: string[] = [];
@@ -58,18 +58,31 @@ export async function sendReply(client: lark.Client, messageId: string, text: st
     chunks.push(text.slice(i, i + MAX_MSG_LEN));
   }
 
+  let firstReplyId: string | undefined;
   for (let i = 0; i < chunks.length; i++) {
     const prefix = `[${i + 1}/${chunks.length}]\n`;
-    await replyMessage(client, messageId, prefix + chunks[i]);
+    const replyId = await replyMessage(client, messageId, prefix + chunks[i]);
+    if (i === 0) firstReplyId = replyId;
   }
+  return firstReplyId;
 }
 
-async function replyMessage(client: lark.Client, messageId: string, text: string) {
-  await client.im.message.reply({
+export async function updateMessage(client: lark.Client, messageId: string, text: string) {
+  await client.im.message.patch({
+    path: { message_id: messageId },
+    data: {
+      content: JSON.stringify({ text: text.slice(0, MAX_MSG_LEN) }),
+    },
+  });
+}
+
+async function replyMessage(client: lark.Client, messageId: string, text: string): Promise<string | undefined> {
+  const resp = await client.im.message.reply({
     path: { message_id: messageId },
     data: {
       msg_type: 'text',
       content: JSON.stringify({ text }),
     },
   });
+  return resp?.data?.message_id;
 }

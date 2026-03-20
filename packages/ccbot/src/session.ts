@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 interface QueueItem {
   message: string;
-  reply: (text: string) => Promise<void>;
+  reply: (text: string) => Promise<string | undefined>;
 }
 
 class UserSession {
@@ -14,7 +14,7 @@ class UserSession {
     message: string,
     sessionId: string,
     isNew: boolean,
-    reply: (text: string) => Promise<void>,
+    reply: (text: string) => Promise<string | undefined>,
   ) => Promise<void>;
 
   constructor(processor: UserSession['processor']) {
@@ -27,7 +27,7 @@ class UserSession {
     this.isNew = true;
   }
 
-  async enqueue(message: string, reply: (text: string) => Promise<void>) {
+  async enqueue(message: string, reply: (text: string) => Promise<string | undefined>) {
     if (this.busy) {
       const pos = this.queue.length + 1;
       await reply(`已排队，前面还有 ${pos} 条消息`);
