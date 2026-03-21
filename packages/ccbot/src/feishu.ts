@@ -48,9 +48,10 @@ export async function startWsClient(config: FeishuConfig, eventDispatcher: Retur
   return wsClient;
 }
 
-export async function sendReply(client: lark.Client, messageId: string, text: string): Promise<string | undefined> {
+export async function sendReply(client: lark.Client, messageId: string, text: string) {
   if (text.length <= MAX_MSG_LEN) {
-    return await replyMessage(client, messageId, text);
+    await replyMessage(client, messageId, text);
+    return;
   }
 
   const chunks: string[] = [];
@@ -58,31 +59,18 @@ export async function sendReply(client: lark.Client, messageId: string, text: st
     chunks.push(text.slice(i, i + MAX_MSG_LEN));
   }
 
-  let firstReplyId: string | undefined;
   for (let i = 0; i < chunks.length; i++) {
     const prefix = `[${i + 1}/${chunks.length}]\n`;
-    const replyId = await replyMessage(client, messageId, prefix + chunks[i]);
-    if (i === 0) firstReplyId = replyId;
+    await replyMessage(client, messageId, prefix + chunks[i]);
   }
-  return firstReplyId;
 }
 
-export async function updateMessage(client: lark.Client, messageId: string, text: string) {
-  await client.im.message.patch({
-    path: { message_id: messageId },
-    data: {
-      content: JSON.stringify({ text: text.slice(0, MAX_MSG_LEN) }),
-    },
-  });
-}
-
-async function replyMessage(client: lark.Client, messageId: string, text: string): Promise<string | undefined> {
-  const resp = await client.im.message.reply({
+async function replyMessage(client: lark.Client, messageId: string, text: string) {
+  await client.im.message.reply({
     path: { message_id: messageId },
     data: {
       msg_type: 'text',
       content: JSON.stringify({ text }),
     },
   });
-  return resp?.data?.message_id;
 }

@@ -6,7 +6,7 @@
   "getStarted": "开始使用",
   "step1Title": "第一步：创建飞书机器人",
   "step1Description": "1. 访问 open.feishu.cn 创建应用\n2. 在应用中开启「机器人」能力\n3. 进入「事件与回调」，订阅方式选择「长连接」，添加事件：im.message.receive_v1\n4. 进入「权限管理」，开通权限（也可通过下方 JSON 直接导入）\n5. 发布应用版本，记下 App ID 和 App Secret",
-  "step1Code": "{\n  \"scopes\": {\n    \"tenant\": [\n      \"im:message.group_at_msg:readonly\",\n      \"im:message.p2p_msg:readonly\",\n      \"im:message:send_as_bot\",\n      \"im:message:update\"\n    ],\n    \"user\": []\n  }\n}",
+  "step1Code": "{\n  \"scopes\": {\n    \"tenant\": [\n      \"im:message.group_at_msg:readonly\",\n      \"im:message.p2p_msg:readonly\",\n      \"im:message:send_as_bot\"\n    ],\n    \"user\": []\n  }\n}",
   "step2Title": "第二步：安装 CLI 并启动",
   "step2Description": "进入你的项目目录，安装并启动 ccbot。首次运行会交互式提示填写配置信息",
   "step2Code": "# 全局安装 CLI\nnpm install -g @ccbot/cli\n\n# 进入项目目录，启动 ccbot\ncd /path/to/your/project\nccbot start\n\n# 首次运行会提示填写：\n# ? Claude Code path: claude\n# ? Anthropic Base URL: https://api.anthropic.com\n# ? Anthropic Auth Token: sk-xxx\n# ? Feishu App ID: cli_xxx\n# ? Feishu App Secret: ***\n# ? Timeout in ms: 300000\n\n# 配置保存到 ccbot.json，后续启动无需重复填写",

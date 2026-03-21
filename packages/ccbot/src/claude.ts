@@ -8,42 +8,12 @@ export interface ClaudeConfig {
   baseUrl: string;
 }
 
-function extractText(line: string): { text?: string; result?: string } {
-  try {
-    const obj = JSON.parse(line);
-    if (obj.type === 'assistant') {
-      const parts = obj.message?.content;
-      if (Array.isArray(parts)) {
-        return {
-          text: parts
-            .filter((p: { type: string }) => p.type === 'text')
-            .map((p: { text: string }) => p.text)
-            .join(''),
-        };
-      }
-    }
-    if (obj.type === 'result') {
-      return { result: obj.result ?? '' };
-    }
-  } catch {
-    // ignore malformed lines
-  }
-  return {};
-}
-
-export function runClaude(
-  prompt: string,
-  sessionId: string,
-  isNew: boolean,
-  config: ClaudeConfig,
-  onData?: (accumulated: string) => void,
-): Promise<string> {
+export function runClaude(prompt: string, sessionId: string, isNew: boolean, config: ClaudeConfig): Promise<string> {
   return new Promise((resolve, reject) => {
     const args = [
       '--print',
       '--output-format',
-      'stream-json',
-      '--verbose',
+      'text',
       ...(isNew ? ['--session-id', sessionId] : ['--resume', sessionId]),
       '--dangerously-skip-permissions',
       '-p',
@@ -60,26 +30,11 @@ export function runClaude(
       stdio: ['pipe', 'pipe', 'pipe'],
     });
 
-    let accumulated = '';
-    let finalResult: string | undefined;
+    let stdout = '';
     let stderr = '';
-    let buf = '';
 
     child.stdout.on('data', (data: Buffer) => {
-      buf += data.toString();
-      const lines = buf.split('\n');
-      buf = lines.pop()!;
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        const { text, result } = extractText(line);
-        if (text) {
-          accumulated += (accumulated ? '\n\n' : '') + text;
-          onData?.(accumulated);
-        }
-        if (result !== undefined) {
-          finalResult = result;
-        }
-      }
+      stdout += data.toString();
     });
 
     child.stderr.on('data', (data: Buffer) => {
@@ -94,7 +49,7 @@ export function runClaude(
     child.on('close', (code) => {
       clearTimeout(timer);
       if (code === 0) {
-        resolve(finalResult ?? accumulated.trim());
+        resolve(stdout.trim());
       } else {
         reject(new Error(stderr || `Claude exited with code ${code}`));
       }
