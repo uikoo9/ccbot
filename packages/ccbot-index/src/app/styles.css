@@ -484,16 +484,15 @@ body {
   font-weight: 500;
   background: transparent;
   border: none;
-  color: var(--color-text);
+  color: var(--color-primary);
   cursor: pointer;
-  transition: all var(--transition-duration);
+  transition: opacity var(--transition-duration);
   min-width: 50px;
   min-height: 38px;
 }
 
 .lang-switcher:hover {
-  opacity: 0.7;
-  color: var(--color-primary);
+  opacity: 0.8;
 }
 
 .lang-switcher:disabled {
