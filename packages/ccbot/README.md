@@ -81,10 +81,11 @@ ccbot logs     # Show server logs
 
 Send these in the Feishu bot conversation:
 
-| Command   | Description                             |
-| --------- | --------------------------------------- |
-| `/new`    | Reset session, start a new conversation |
-| `/status` | Show current session status             |
+| Command   | Description                              |
+| --------- | ---------------------------------------- |
+| `/new`    | Reset session, start a new conversation  |
+| `/stop`   | Stop the current request and clear queue |
+| `/status` | Show current session status              |
 
 ## Config
 

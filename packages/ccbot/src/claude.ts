@@ -8,7 +8,13 @@ export interface ClaudeConfig {
   baseUrl: string;
 }
 
-export function runClaude(prompt: string, sessionId: string, isNew: boolean, config: ClaudeConfig): Promise<string> {
+export function runClaude(
+  prompt: string,
+  sessionId: string,
+  isNew: boolean,
+  config: ClaudeConfig,
+  signal?: AbortSignal,
+): Promise<string> {
   return new Promise((resolve, reject) => {
     const args = [
       '--print',
@@ -33,6 +39,20 @@ export function runClaude(prompt: string, sessionId: string, isNew: boolean, con
     let stdout = '';
     let stderr = '';
 
+    const onAbort = () => {
+      child.kill('SIGTERM');
+      reject(new Error('已终止'));
+    };
+
+    if (signal) {
+      if (signal.aborted) {
+        child.kill('SIGTERM');
+        reject(new Error('已终止'));
+        return;
+      }
+      signal.addEventListener('abort', onAbort, { once: true });
+    }
+
     child.stdout.on('data', (data: Buffer) => {
       stdout += data.toString();
     });
@@ -48,6 +68,7 @@ export function runClaude(prompt: string, sessionId: string, isNew: boolean, con
 
     child.on('close', (code) => {
       clearTimeout(timer);
+      signal?.removeEventListener('abort', onAbort);
       if (code === 0) {
         resolve(stdout.trim());
       } else {
@@ -57,6 +78,7 @@ export function runClaude(prompt: string, sessionId: string, isNew: boolean, con
 
     child.on('error', (err) => {
       clearTimeout(timer);
+      signal?.removeEventListener('abort', onAbort);
       reject(err);
     });
   });

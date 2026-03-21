@@ -26,16 +26,18 @@ async function main() {
   const config = loadConfig();
   const client = createFeishuClient(config.feishu);
 
-  const sessionManager = new SessionManager(async (message, sessionId, isNew, reply) => {
+  const sessionManager = new SessionManager(async (message, sessionId, isNew, reply, signal) => {
     await reply('正在处理...');
     try {
-      const result = await runClaude(message, sessionId, isNew, config.claude);
+      const result = await runClaude(message, sessionId, isNew, config.claude, signal);
       await reply(result || '(无输出)');
     } catch (err: unknown) {
       const errMsg =
         err instanceof Error && err.message === '执行超时'
           ? '执行超时，请重试或简化问题'
-          : `执行出错: ${err instanceof Error ? err.message : err}`;
+          : err instanceof Error && err.message === '已终止'
+            ? '已终止当前请求'
+            : `执行出错: ${err instanceof Error ? err.message : err}`;
       await reply(errMsg);
     }
   });
@@ -46,6 +48,12 @@ async function main() {
     if (text === '/new') {
       sessionManager.resetSession(chatId);
       replyFn('会话已重置，开始新的对话').catch(console.error);
+      return;
+    }
+
+    if (text === '/stop') {
+      const stopped = sessionManager.stopSession(chatId);
+      replyFn(stopped ? '已终止当前请求' : '当前没有正在执行的请求').catch(console.error);
       return;
     }
 
