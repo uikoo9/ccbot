@@ -11,6 +11,7 @@ Control your local Claude Code via Feishu (Lark) bot.
 - pm2 background process management
 - Per-user message queue
 - Auto-split long messages
+- Feishu Markdown rendering support
 - Configurable timeout
 
 ## Install
