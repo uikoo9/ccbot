@@ -7,6 +7,20 @@ export interface FeishuConfig {
 
 const MAX_MSG_LEN = 4000;
 
+const MD_PATTERNS = [
+  /^#{1,6}\s/m, // headings
+  /\*\*.+?\*\*/, // bold
+  /`.+?`/, // inline code
+  /```[\s\S]*?```/, // code blocks
+  /^\s*[-*]\s/m, // unordered list
+  /^\s*\d+\.\s/m, // ordered list
+  /\[.+?\]\(.+?\)/, // links
+];
+
+function hasMarkdown(text: string): boolean {
+  return MD_PATTERNS.some((p) => p.test(text));
+}
+
 export function createFeishuClient(config: FeishuConfig) {
   return new lark.Client({
     appId: config.appId,
@@ -66,11 +80,23 @@ export async function sendReply(client: lark.Client, messageId: string, text: st
 }
 
 async function replyMessage(client: lark.Client, messageId: string, text: string) {
-  await client.im.message.reply({
-    path: { message_id: messageId },
-    data: {
-      msg_type: 'text',
-      content: JSON.stringify({ text }),
-    },
-  });
+  if (hasMarkdown(text)) {
+    await client.im.message.reply({
+      path: { message_id: messageId },
+      data: {
+        msg_type: 'interactive',
+        content: JSON.stringify({
+          elements: [{ tag: 'markdown', content: text }],
+        }),
+      },
+    });
+  } else {
+    await client.im.message.reply({
+      path: { message_id: messageId },
+      data: {
+        msg_type: 'text',
+        content: JSON.stringify({ text }),
+      },
+    });
+  }
 }
