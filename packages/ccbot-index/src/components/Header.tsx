@@ -1,5 +1,7 @@
 'use client';
 
+import { LanguageSwitcher } from './LanguageSwitcher';
+
 export function Header() {
   return (
     <header className="header">
@@ -9,6 +11,7 @@ export function Header() {
 
         {/* Right side buttons */}
         <div className="header-actions">
+          <LanguageSwitcher />
           <a
             href="https://github.com/uikoo9/ccbot"
             target="_blank"
