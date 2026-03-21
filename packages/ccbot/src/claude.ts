@@ -26,6 +26,8 @@ export function runClaude(
       prompt,
     ];
 
+    console.log(`[${sessionId}] Spawning Claude: ${config.bin} ${args.slice(0, -1).join(' ')} -p <prompt>`);
+
     const child = spawn(config.bin, args, {
       cwd: config.workDir,
       env: {
@@ -40,6 +42,7 @@ export function runClaude(
     let stderr = '';
 
     const onAbort = () => {
+      console.log(`[${sessionId}] Aborting Claude process`);
       child.kill('SIGTERM');
       reject(new Error('已终止'));
     };
@@ -58,10 +61,13 @@ export function runClaude(
     });
 
     child.stderr.on('data', (data: Buffer) => {
-      stderr += data.toString();
+      const chunk = data.toString();
+      stderr += chunk;
+      console.error(`[${sessionId}] Claude stderr:`, chunk);
     });
 
     const timer = setTimeout(() => {
+      console.log(`[${sessionId}] Claude timeout after ${config.timeoutMs}ms`);
       child.kill('SIGTERM');
       reject(new Error('执行超时'));
     }, config.timeoutMs);
@@ -69,16 +75,20 @@ export function runClaude(
     child.on('close', (code) => {
       clearTimeout(timer);
       signal?.removeEventListener('abort', onAbort);
+      console.log(`[${sessionId}] Claude exited with code ${code}`);
       if (code === 0) {
         resolve(stdout.trim());
       } else {
-        reject(new Error(stderr || `Claude exited with code ${code}`));
+        const errorMsg = stderr || `Claude exited with code ${code}`;
+        console.error(`[${sessionId}] Claude error:`, errorMsg);
+        reject(new Error(errorMsg));
       }
     });
 
     child.on('error', (err) => {
       clearTimeout(timer);
       signal?.removeEventListener('abort', onAbort);
+      console.error(`[${sessionId}] Claude spawn error:`, err);
       reject(err);
     });
   });

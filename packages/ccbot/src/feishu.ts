@@ -63,6 +63,7 @@ export async function startWsClient(config: FeishuConfig, eventDispatcher: Retur
 }
 
 export async function sendReply(client: lark.Client, messageId: string, text: string) {
+  console.log(`[feishu] Sending reply to ${messageId}, length: ${text.length}`);
   if (text.length <= MAX_MSG_LEN) {
     await replyMessage(client, messageId, text);
     return;
@@ -73,6 +74,7 @@ export async function sendReply(client: lark.Client, messageId: string, text: st
     chunks.push(text.slice(i, i + MAX_MSG_LEN));
   }
 
+  console.log(`[feishu] Splitting message into ${chunks.length} chunks`);
   for (let i = 0; i < chunks.length; i++) {
     const prefix = `[${i + 1}/${chunks.length}]\n`;
     await replyMessage(client, messageId, prefix + chunks[i]);

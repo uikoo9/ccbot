@@ -40,12 +40,14 @@ class UserSession {
   async enqueue(message: string, reply: (text: string) => Promise<void>) {
     if (this.busy) {
       const pos = this.queue.length + 1;
+      console.log(`[${this.sessionId}] Message queued, position: ${pos}`);
       await reply(`已排队，前面还有 ${pos} 条消息`);
       this.queue.push({ message, reply });
       return;
     }
 
     this.busy = true;
+    console.log(`[${this.sessionId}] Starting to process message`);
     try {
       this.abortController = new AbortController();
       await this.processor(message, this.sessionId, this.isNew, reply, this.abortController.signal);
@@ -53,13 +55,18 @@ class UserSession {
       this.isNew = false;
       while (this.queue.length > 0) {
         const next = this.queue.shift()!;
+        console.log(`[${this.sessionId}] Processing next queued message, ${this.queue.length} remaining`);
         this.abortController = new AbortController();
         await this.processor(next.message, this.sessionId, this.isNew, next.reply, this.abortController.signal);
         this.abortController = null;
       }
+    } catch (err) {
+      console.error(`[${this.sessionId}] Enqueue processing error:`, err);
+      throw err;
     } finally {
       this.abortController = null;
       this.busy = false;
+      console.log(`[${this.sessionId}] Finished processing, busy=false`);
     }
   }
 }
