@@ -33,7 +33,7 @@ export function runClaude(
         ANTHROPIC_AUTH_TOKEN: config.authToken,
         ANTHROPIC_BASE_URL: config.baseUrl,
       },
-      stdio: ['pipe', 'pipe', 'pipe'],
+      stdio: ['ignore', 'pipe', 'pipe'],
     });
 
     let stdout = '';

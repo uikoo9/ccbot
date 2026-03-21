@@ -2,6 +2,8 @@
 
 通过飞书机器人控制本地 Claude Code。
 
+[English](https://github.com/uikoo9/ccbot/blob/main/packages/ccbot/README.md)
+
 ## 特性
 
 - 飞书 WebSocket 长连接，无需公网 IP
