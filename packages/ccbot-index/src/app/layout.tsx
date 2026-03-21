@@ -136,7 +136,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="dns-prefetch" href="https://static-small.vincentqiao.com" />
       </head>
       <body suppressHydrationWarning>
-        {/* Microsoft Clarity Analytics removed */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if(location.hostname.includes('ccbot.dev'))(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","vz55edb4ys");`,
+          }}
+        />
         <WebsiteSchema />
         <NextIntlClientProvider messages={messages} locale={locale}>
           <Providers key={locale}>{children}</Providers>
