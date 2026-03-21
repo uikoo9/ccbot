@@ -46,6 +46,14 @@ program
   });
 
 program
+  .command('delete')
+  .description('Delete ccbot process from pm2')
+  .action(async () => {
+    const { del } = await import('../dist/start.js');
+    await del();
+  });
+
+program
   .command('logs')
   .description('Show ccbot logs')
   .action(() => {

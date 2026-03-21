@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
+import { fileURLToPath } from 'url';
 import { createFeishuClient, createEventDispatcher, startWsClient, sendReply } from './feishu.js';
 import { runClaude, type ClaudeConfig } from './claude.js';
 import { SessionManager } from './session.js';
@@ -20,6 +21,16 @@ function loadConfig(): Config {
   }
   const raw = readFileSync(resolve(configPath), 'utf-8');
   return JSON.parse(raw);
+}
+
+function getVersion(): string {
+  try {
+    const pkgPath = resolve(fileURLToPath(import.meta.url), '../../package.json');
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+    return pkg.version || 'unknown';
+  } catch {
+    return 'unknown';
+  }
 }
 
 async function main() {
@@ -65,6 +76,11 @@ async function main() {
         const msg = `Session: ${info.sessionId}\n项目目录: ${config.claude.workDir}\n状态: ${info.busy ? '执行中' : '空闲'}\n队列: ${info.queueLength} 条`;
         replyFn(msg).catch(console.error);
       }
+      return;
+    }
+
+    if (text === '/version') {
+      replyFn(`CCBot v${getVersion()}`).catch(console.error);
       return;
     }
 

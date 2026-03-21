@@ -74,6 +74,7 @@ Config is saved to `ccbot.json` in the current directory. Subsequent runs skip t
 ccbot start    # Start server (prompts config on first run)
 ccbot stop     # Stop server
 ccbot restart  # Restart server (use after updating)
+ccbot delete   # Delete ccbot process from pm2
 ccbot status   # Show process status
 ccbot logs     # Show server logs
 ```
@@ -82,11 +83,12 @@ ccbot logs     # Show server logs
 
 Send these in the Feishu bot conversation:
 
-| Command   | Description                              |
-| --------- | ---------------------------------------- |
-| `/new`    | Reset session, start a new conversation  |
-| `/stop`   | Stop the current request and clear queue |
-| `/status` | Show current session status              |
+| Command    | Description                              |
+| ---------- | ---------------------------------------- |
+| `/new`     | Reset session, start a new conversation  |
+| `/stop`    | Stop the current request and clear queue |
+| `/status`  | Show current session status              |
+| `/version` | Show CCBot version                       |
 
 ## Config
 

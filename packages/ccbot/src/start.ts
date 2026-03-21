@@ -127,6 +127,18 @@ export async function restart() {
   }
 }
 
+export async function del() {
+  const configPath = resolve(process.cwd(), CONFIG_FILE);
+  const processName = existsSync(configPath) ? getProcessName(configPath) : 'ccbot';
+  const { execSync } = await import('child_process');
+  try {
+    execSync(`pm2 delete ${processName}`, { stdio: 'inherit' });
+    console.log(pc.green(`✔ ${processName} deleted.`));
+  } catch {
+    console.error(pc.red(`Failed to delete ${processName}. Is it running?`));
+  }
+}
+
 export async function status() {
   const configPath = resolve(process.cwd(), CONFIG_FILE);
   const processName = existsSync(configPath) ? getProcessName(configPath) : 'ccbot';
