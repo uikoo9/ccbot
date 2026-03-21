@@ -123,7 +123,7 @@ wsClient.start();
 
 // 发送回复：调用飞书 API
 // POST /im/v1/messages/:message_id/reply
-// ��文本格式
+// 纯文本格式
 ```
 
 ### claude.js — Claude Code 调用
@@ -154,7 +154,7 @@ function runClaude(prompt, sessionId, workDir) {
 
 ```js
 // 内存中维护 Map<feishuUserId, sessionId>
-// 每个飞书用户对应一个固定�� Claude Code session
+// 每个飞书用户对应一个固定的 Claude Code session
 // 首次对话时生成 UUID 作为 session-id
 // 支持 /new 命令重置会话（生成新的 session-id）
 ```
