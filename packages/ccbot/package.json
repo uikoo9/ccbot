@@ -1,6 +1,6 @@
 {
   "name": "@ccbot/cli",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Control Claude Code via Feishu bot",
   "type": "module",
   "bin": {
