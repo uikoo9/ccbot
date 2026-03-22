@@ -95,7 +95,9 @@ export function Steps() {
 
           <Step titleKey="step2Title" descriptionKey="step2Description" codeKey="step2Code" />
 
-          <Step titleKey="step3Title" descriptionKey="step3Description" />
+          <Step titleKey="step3Title" descriptionKey="step3Description" codeKey="step3Code" />
+
+          <Step titleKey="step4Title" descriptionKey="step4Description" />
         </div>
       </div>
     </div>
