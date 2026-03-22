@@ -53,18 +53,9 @@ npm install -g @ccbot/cli
 
 ### 第三步：配置 Claude Code
 
-确保已安装并配置 Claude Code：
+确保已安装并配置 Claude Code 的 API 凭证。
 
-```bash
-claude config
-```
-
-设置以下环境变量：
-
-- `ANTHROPIC_AUTH_TOKEN`: 你的 Anthropic API Token
-- `ANTHROPIC_BASE_URL`: Anthropic API 地址（如 `https://api.anthropic.com`）
-
-或者手动编辑 `~/.claude/settings.json`：
+编辑 `~/.claude/settings.json`：
 
 ```json
 {

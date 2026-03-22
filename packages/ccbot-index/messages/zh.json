@@ -9,7 +9,7 @@
   "step1Code": "{\n  \"scopes\": {\n    \"tenant\": [\n      \"im:message.group_at_msg:readonly\",\n      \"im:message.p2p_msg:readonly\",\n      \"im:message:send_as_bot\"\n    ],\n    \"user\": []\n  }\n}",
   "step2Title": "第二步：配置 Claude Code",
   "step2Description": "确保已安装并配置 Claude Code 的 API 凭证",
-  "step2Code": "# 如果尚未安装 Claude Code\nnpm install -g @anthropic-ai/claude-code\n\n# 配置 Claude Code\nclaude config\n\n# 或手动编辑 ~/.claude/settings.json：\n# {\n#   \"env\": {\n#     \"ANTHROPIC_AUTH_TOKEN\": \"sk-xxx\",\n#     \"ANTHROPIC_BASE_URL\": \"https://api.anthropic.com\"\n#   }\n# }",
+  "step2Code": "# 编辑 ~/.claude/settings.json：\n{\n  \"env\": {\n    \"ANTHROPIC_AUTH_TOKEN\": \"sk-xxx\",\n    \"ANTHROPIC_BASE_URL\": \"https://api.anthropic.com\"\n  }\n}",
   "step3Title": "第三步：安装 CLI 并启动",
   "step3Description": "进入你的项目目录，安装并启动 ccbot。首次运行会交互式提示填写配置信息",
   "step3Code": "# 全局安装 CLI\nnpm install -g @ccbot/cli\n\n# 进入项目目录，启动 ccbot\ncd /path/to/your/project\nccbot start\n\n# 首次运行会提示填写：\n# ? Claude Code path: claude\n# ? Feishu App ID: cli_xxx\n# ? Feishu App Secret: ***\n# ? Timeout in ms: 300000\n\n# 配置保存到 ccbot.json\n# Claude API 凭证从 ~/.claude/settings.json 读取",

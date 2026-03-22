@@ -9,7 +9,7 @@
   "step1Code": "{\n  \"scopes\": {\n    \"tenant\": [\n      \"im:message.group_at_msg:readonly\",\n      \"im:message.p2p_msg:readonly\",\n      \"im:message:send_as_bot\"\n    ],\n    \"user\": []\n  }\n}",
   "step2Title": "Step 2: Configure Claude Code",
   "step2Description": "Ensure Claude Code is installed and configured with your API credentials",
-  "step2Code": "# Install Claude Code if not already installed\nnpm install -g @anthropic-ai/claude-code\n\n# Configure Claude Code\nclaude config\n\n# Or manually edit ~/.claude/settings.json:\n# {\n#   \"env\": {\n#     \"ANTHROPIC_AUTH_TOKEN\": \"sk-xxx\",\n#     \"ANTHROPIC_BASE_URL\": \"https://api.anthropic.com\"\n#   }\n# }",
+  "step2Code": "# Edit ~/.claude/settings.json:\n{\n  \"env\": {\n    \"ANTHROPIC_AUTH_TOKEN\": \"sk-xxx\",\n    \"ANTHROPIC_BASE_URL\": \"https://api.anthropic.com\"\n  }\n}",
   "step3Title": "Step 3: Install CLI and Launch",
   "step3Description": "Navigate to your project directory, install and start ccbot. First run will prompt you to fill in the configuration",
   "step3Code": "# Install CLI globally\nnpm install -g @ccbot/cli\n\n# Navigate to your project directory and start ccbot\ncd /path/to/your/project\nccbot start\n\n# First run will prompt:\n# ? Claude Code path: claude\n# ? Feishu App ID: cli_xxx\n# ? Feishu App Secret: ***\n# ? Timeout in ms: 300000\n\n# Config saved to ccbot.json\n# Claude API credentials are read from ~/.claude/settings.json",

@@ -49,18 +49,9 @@ You can also import permissions via JSON:
 
 ## Configure Claude Code
 
-Ensure Claude Code is installed and configured:
+Ensure Claude Code is installed and configured with your API credentials.
 
-```bash
-claude config
-```
-
-Set the following environment variables:
-
-- `ANTHROPIC_AUTH_TOKEN`: Your Anthropic API Token
-- `ANTHROPIC_BASE_URL`: Anthropic API URL (e.g., `https://api.anthropic.com`)
-
-Or manually edit `~/.claude/settings.json`:
+Edit `~/.claude/settings.json`:
 
 ```json
 {
