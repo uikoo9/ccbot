@@ -83,12 +83,13 @@ export async function sendReply(client: lark.Client, messageId: string, text: st
 
 async function replyMessage(client: lark.Client, messageId: string, text: string) {
   if (hasMarkdown(text)) {
+    const content = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '[$1]($2)');
     await client.im.message.reply({
       path: { message_id: messageId },
       data: {
         msg_type: 'interactive',
         content: JSON.stringify({
-          elements: [{ tag: 'markdown', content: text }],
+          elements: [{ tag: 'markdown', content }],
         }),
       },
     });

@@ -1,11 +1,28 @@
 import { spawn } from 'child_process';
+import { readFileSync, existsSync } from 'fs';
+import { homedir } from 'os';
+import { resolve } from 'path';
 
 export interface ClaudeConfig {
   bin: string;
   workDir: string;
   timeoutMs: number;
-  authToken: string;
-  baseUrl: string;
+}
+
+function getClaudeSystemConfig(): { authToken?: string; baseUrl?: string } {
+  const settingsPath = resolve(homedir(), '.claude', 'settings.json');
+  if (!existsSync(settingsPath)) {
+    return {};
+  }
+  try {
+    const settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
+    return {
+      authToken: settings.env?.ANTHROPIC_AUTH_TOKEN,
+      baseUrl: settings.env?.ANTHROPIC_BASE_URL,
+    };
+  } catch {
+    return {};
+  }
 }
 
 export function runClaude(
@@ -16,6 +33,12 @@ export function runClaude(
   signal?: AbortSignal,
 ): Promise<string> {
   return new Promise((resolve, reject) => {
+    const systemConfig = getClaudeSystemConfig();
+    if (!systemConfig.authToken || !systemConfig.baseUrl) {
+      reject(new Error('Claude 配置未找到，请运行 claude config 或配置 ~/.claude/settings.json'));
+      return;
+    }
+
     const args = [
       '--print',
       '--output-format',
@@ -28,13 +51,15 @@ export function runClaude(
 
     console.log(`[${sessionId}] Spawning Claude: ${config.bin} ${args.slice(0, -1).join(' ')} -p <prompt>`);
 
+    const env = { ...process.env };
+    delete env.ANTHROPIC_AUTH_TOKEN;
+    delete env.ANTHROPIC_BASE_URL;
+    env.ANTHROPIC_AUTH_TOKEN = systemConfig.authToken;
+    env.ANTHROPIC_BASE_URL = systemConfig.baseUrl;
+
     const child = spawn(config.bin, args, {
       cwd: config.workDir,
-      env: {
-        ...process.env,
-        ANTHROPIC_AUTH_TOKEN: config.authToken,
-        ANTHROPIC_BASE_URL: config.baseUrl,
-      },
+      env,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
 

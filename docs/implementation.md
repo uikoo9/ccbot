@@ -354,3 +354,5 @@ async function sendReply(client, messageId, text) {
 | claude.bin | 否 | `claude` | Claude Code 可执行文件路径 |
 | claude.workDir | 是 | - | Claude Code 工作目录 |
 | claude.timeoutMs | 否 | `300000` | 单次执行超时时间(ms)，默认5分钟 |
+
+**Claude API 配置**：CCBot 从 `~/.claude/settings.json` 的 `env.ANTHROPIC_AUTH_TOKEN` 和 `env.ANTHROPIC_BASE_URL` 读取 API 凭证，多个 CCBot 项目共享同一套凭证。

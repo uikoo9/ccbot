@@ -51,7 +51,31 @@ npm install -g @ccbot/cli
 
 6. 发布应用，记下 App ID 和 App Secret
 
-### 第三步：启动
+### 第三步：配置 Claude Code
+
+确保已安装并配置 Claude Code：
+
+```bash
+claude config
+```
+
+设置以下环境变量：
+
+- `ANTHROPIC_AUTH_TOKEN`: 你的 Anthropic API Token
+- `ANTHROPIC_BASE_URL`: Anthropic API 地址（如 `https://api.anthropic.com`）
+
+或者手动编辑 `~/.claude/settings.json`：
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "sk-xxx",
+    "ANTHROPIC_BASE_URL": "https://api.anthropic.com"
+  }
+}
+```
+
+### 第四步：启动 CCBot
 
 进入你的项目目录，运行：
 
@@ -63,8 +87,6 @@ ccbot start
 
 ```
 ? Claude Code path: claude
-? Anthropic Base URL: https://api.anthropic.com
-? Anthropic Auth Token: sk-xxx
 ? Feishu App ID: cli_xxx
 ? Feishu App Secret: ***
 ? Timeout in ms: 300000
@@ -72,18 +94,18 @@ ccbot start
 
 各项说明：
 
-| 配置项               | 说明                                      |
-| -------------------- | ----------------------------------------- |
-| Claude Code path     | Claude Code 可执行文件路径，默认 `claude` |
-| Anthropic Base URL   | Anthropic API 地址                        |
-| Anthropic Auth Token | Anthropic API 认证 Token                  |
-| Feishu App ID        | 飞书应用的 App ID                         |
-| Feishu App Secret    | 飞书应用的 App Secret                     |
-| Timeout in ms        | 单次执行超时时间，默认 5 分钟             |
+| 配置项            | 说明                                      |
+| ----------------- | ----------------------------------------- |
+| Claude Code path  | Claude Code 可执行文件路径，默认 `claude` |
+| Feishu App ID     | 飞书应用的 App ID                         |
+| Feishu App Secret | 飞书应用的 App Secret                     |
+| Timeout in ms     | 单次执行超时时间，默认 5 分钟             |
 
 配置保存到当前目录的 `ccbot.json`，后续启动自动使用，无需重复填写。
 
-### 第四步：在飞书中使用
+**注意**：CCBot 会从 `~/.claude/settings.json` 读取 Claude API 配置，多个 CCBot 项目共享同一套凭证。
+
+### 第五步：在飞书中使用
 
 在飞书中找到你的机器人，直接发消息即可。机器人会将消息转发给 Claude Code，并将结果回复给你。
 
@@ -124,9 +146,7 @@ ccbot logs     # 查看日志
   "claude": {
     "bin": "claude",
     "workDir": "/path/to/project",
-    "timeoutMs": 300000,
-    "authToken": "sk-xxx",
-    "baseUrl": "https://api.anthropic.com"
+    "timeoutMs": 300000
   }
 }
 ```
@@ -138,8 +158,8 @@ ccbot logs     # 查看日志
 | claude.bin       | 否   | `claude` | Claude Code 可执行文件路径 |
 | claude.workDir   | 自动 | 当前目录 | Claude Code 工作目录       |
 | claude.timeoutMs | 否   | `300000` | 单次执行超时时间(ms)       |
-| claude.authToken | 是   | -        | Anthropic API Token        |
-| claude.baseUrl   | 是   | -        | Anthropic API 地址         |
+
+**Claude API 配置**：CCBot 从 `~/.claude/settings.json` 的 `env.ANTHROPIC_AUTH_TOKEN` 和 `env.ANTHROPIC_BASE_URL` 读取 API 凭证。
 
 注意：`ccbot.json` 包含敏感信息，请勿提交到版本控制。
 

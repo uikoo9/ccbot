@@ -30,18 +30,6 @@ async function ensureConfig(): Promise<string> {
     },
     {
       type: 'input',
-      name: 'baseUrl',
-      message: 'Anthropic Base URL:',
-      validate: (v: string) => (v.trim() ? true : 'Base URL is required'),
-    },
-    {
-      type: 'input',
-      name: 'authToken',
-      message: 'Anthropic Auth Token:',
-      validate: (v: string) => (v.trim() ? true : 'Auth token is required'),
-    },
-    {
-      type: 'input',
       name: 'appId',
       message: 'Feishu App ID:',
       validate: (v: string) => (v.trim() ? true : 'App ID is required'),
@@ -75,8 +63,6 @@ async function ensureConfig(): Promise<string> {
       bin: answers.claudeBin.trim(),
       workDir: answers.workDir.trim() || process.cwd(),
       timeoutMs: answers.timeoutMs,
-      authToken: answers.authToken.trim(),
-      baseUrl: answers.baseUrl.trim(),
     },
   };
 

@@ -47,6 +47,30 @@ You can also import permissions via JSON:
 
 6. Publish the app, note down App ID and App Secret
 
+## Configure Claude Code
+
+Ensure Claude Code is installed and configured:
+
+```bash
+claude config
+```
+
+Set the following environment variables:
+
+- `ANTHROPIC_AUTH_TOKEN`: Your Anthropic API Token
+- `ANTHROPIC_BASE_URL`: Anthropic API URL (e.g., `https://api.anthropic.com`)
+
+Or manually edit `~/.claude/settings.json`:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "sk-xxx",
+    "ANTHROPIC_BASE_URL": "https://api.anthropic.com"
+  }
+}
+```
+
 ## Usage
 
 Navigate to your project directory and run:
@@ -59,14 +83,14 @@ On first run, you'll be prompted for configuration:
 
 ```
 ? Claude Code path: claude
-? Anthropic Base URL: https://api.anthropic.com
-? Anthropic Auth Token: sk-xxx
 ? Feishu App ID: cli_xxx
 ? Feishu App Secret: ***
 ? Timeout in ms: 300000
 ```
 
 Config is saved to `ccbot.json` in the current directory. Subsequent runs skip the prompts.
+
+**Note**: CCBot reads Claude API credentials from `~/.claude/settings.json`, allowing multiple CCBot projects to share the same credentials.
 
 ### Commands
 
@@ -103,12 +127,12 @@ Send these in the Feishu bot conversation:
   "claude": {
     "bin": "claude",
     "workDir": "/path/to/project",
-    "timeoutMs": 300000,
-    "authToken": "sk-xxx",
-    "baseUrl": "https://api.anthropic.com"
+    "timeoutMs": 300000
   }
 }
 ```
+
+**Claude API Config**: CCBot reads API credentials from `env.ANTHROPIC_AUTH_TOKEN` and `env.ANTHROPIC_BASE_URL` in `~/.claude/settings.json`.
 
 ## License
 
