@@ -44,7 +44,7 @@ async function ensureConfig(): Promise<string> {
       type: 'number',
       name: 'timeoutMs',
       message: 'Timeout in ms (press enter for default):',
-      default: 300000,
+      default: 600000,
     },
     {
       type: 'input',

@@ -221,7 +221,7 @@ function runClaude(prompt, sessionId, workDir) {
   ↓
 调用 claude --print --session-id <id> -p "消息内容"
   ↓
-启动超时计时器 (默认5分钟，可配置)
+启动超时计时器 (默认10分钟，可配置)
   ├─ 超时 → kill 子进程，回复"执行超时，请重试或简化问题"
   └─ 正常完成 → 继续
   ↓
@@ -270,7 +270,7 @@ class UserSession {
 
 ```js
 // claude.js 中
-function runClaude(prompt, sessionId, workDir, timeoutMs = 300000) {
+function runClaude(prompt, sessionId, workDir, timeoutMs = 600000) {
   return new Promise((resolve, reject) => {
     const child = spawn('claude', args, { cwd: workDir });
 
@@ -342,7 +342,7 @@ async function sendReply(client, messageId, text) {
   "claude": {
     "bin": "claude",
     "workDir": "/Users/xxx/my-project",
-    "timeoutMs": 300000
+    "timeoutMs": 600000
   }
 }
 ```
@@ -353,6 +353,6 @@ async function sendReply(client, messageId, text) {
 | feishu.appSecret | 是 | - | 飞书应用 App Secret |
 | claude.bin | 否 | `claude` | Claude Code 可执行文件路径 |
 | claude.workDir | 是 | - | Claude Code 工作目录 |
-| claude.timeoutMs | 否 | `300000` | 单次执行超时时间(ms)，默认5分钟 |
+| claude.timeoutMs | 否 | `600000` | 单次执行超时时间(ms)，默认10分钟 |
 
 **Claude API 配置**：CCBot 从 `~/.claude/settings.json` 的 `env.ANTHROPIC_AUTH_TOKEN` 和 `env.ANTHROPIC_BASE_URL` 读取 API 凭证，多个 CCBot 项目共享同一套凭证。
