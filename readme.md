@@ -1,1 +1,0 @@
-packages/ccbot/README.zh-CN.md
