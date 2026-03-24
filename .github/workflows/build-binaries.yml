@@ -38,12 +38,12 @@ jobs:
             target: node18-win-x64
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install dependencies
         run: npm install
@@ -64,7 +64,7 @@ jobs:
           pkg bundle/ccbot.cjs --target ${{ matrix.target }} --output ccbot-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.os == 'win' && '.exe' || '' }}
 
       - name: Upload binary
-        uses: actions/upload-artifact@v4.6
+        uses: actions/upload-artifact@v4
         with:
           name: ccbot-${{ matrix.os }}-${{ matrix.arch }}
           path: packages/ccbot/ccbot-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.os == 'win' && '.exe' || '' }}
