@@ -2,10 +2,14 @@
 
 import { Command } from 'commander';
 import { execSync } from 'child_process';
-import { existsSync } from 'fs';
-import { resolve } from 'path';
+import { existsSync, readFileSync } from 'fs';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { start, status, getProcessName } from '../dist/start.js';
 import { stop } from '../dist/stop.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json'), 'utf-8'));
 
 function resolveProcessName() {
   const configPath = resolve(process.cwd(), 'ccbot.json');
@@ -14,7 +18,7 @@ function resolveProcessName() {
 
 const program = new Command();
 
-program.name('ccbot').description('Control Claude Code via Feishu bot').version('0.0.1');
+program.name('ccbot').description('Control Claude Code via Feishu bot').version(pkg.version);
 
 program
   .command('start')
