@@ -16,8 +16,22 @@ Control your local Claude Code via Feishu (Lark) bot.
 
 ## Install
 
+**Via npm:**
+
 ```bash
 npm install -g @ccbot/cli
+```
+
+**Via install script (Linux & macOS):**
+
+```bash
+curl -fsSL https://www.ccbot.dev/install.sh | sh
+```
+
+**Via install script (Windows PowerShell):**
+
+```powershell
+irm https://www.ccbot.dev/install.ps1 | iex
 ```
 
 ## Setup Feishu Bot

@@ -270,3 +270,5 @@ yarn.lock
 .cc.sh
 configs
 ccbot.json
+packages/ccbot/bundle
+packages/ccbot/bin-dist
