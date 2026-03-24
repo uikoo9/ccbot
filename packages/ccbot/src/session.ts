@@ -59,7 +59,14 @@ class UserSession {
         const next = this.queue.shift()!;
         console.log(`[${this.sessionId}] Processing next queued message, ${this.queue.length} remaining`);
         this.abortController = new AbortController();
-        await this.processor(next.message, this.sessionId, this.isNew, next.reply, this.abortController.signal, this.addDirs);
+        await this.processor(
+          next.message,
+          this.sessionId,
+          this.isNew,
+          next.reply,
+          this.abortController.signal,
+          this.addDirs,
+        );
         this.abortController = null;
       }
     } catch (err) {
