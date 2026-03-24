@@ -31,6 +31,7 @@ export function runClaude(
   isNew: boolean,
   config: ClaudeConfig,
   signal?: AbortSignal,
+  addDirs?: string[],
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const systemConfig = getClaudeSystemConfig();
@@ -45,6 +46,7 @@ export function runClaude(
       'text',
       ...(isNew ? ['--session-id', sessionId] : ['--resume', sessionId]),
       '--dangerously-skip-permissions',
+      ...(addDirs || []).flatMap((dir) => ['--add-dir', dir]),
       '-p',
       prompt,
     ];

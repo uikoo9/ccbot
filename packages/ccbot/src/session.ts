@@ -11,12 +11,14 @@ class UserSession {
   queue: QueueItem[] = [];
   busy = false;
   abortController: AbortController | null = null;
+  addDirs: string[] = [];
   private processor: (
     message: string,
     sessionId: string,
     isNew: boolean,
     reply: (text: string) => Promise<void>,
     signal: AbortSignal,
+    addDirs: string[],
   ) => Promise<void>;
 
   constructor(processor: UserSession['processor']) {
@@ -50,14 +52,14 @@ class UserSession {
     console.log(`[${this.sessionId}] Starting to process message`);
     try {
       this.abortController = new AbortController();
-      await this.processor(message, this.sessionId, this.isNew, reply, this.abortController.signal);
+      await this.processor(message, this.sessionId, this.isNew, reply, this.abortController.signal, this.addDirs);
       this.abortController = null;
       this.isNew = false;
       while (this.queue.length > 0) {
         const next = this.queue.shift()!;
         console.log(`[${this.sessionId}] Processing next queued message, ${this.queue.length} remaining`);
         this.abortController = new AbortController();
-        await this.processor(next.message, this.sessionId, this.isNew, next.reply, this.abortController.signal);
+        await this.processor(next.message, this.sessionId, this.isNew, next.reply, this.abortController.signal, this.addDirs);
         this.abortController = null;
       }
     } catch (err) {
@@ -104,13 +106,14 @@ export class SessionManager {
     return false;
   }
 
-  getSessionInfo(chatId: string): { sessionId: string; queueLength: number; busy: boolean } | null {
+  getSessionInfo(chatId: string): { sessionId: string; queueLength: number; busy: boolean; addDirs: string[] } | null {
     const session = this.sessions.get(chatId);
     if (!session) return null;
     return {
       sessionId: session.sessionId,
       queueLength: session.queue.length,
       busy: session.busy,
+      addDirs: session.addDirs,
     };
   }
 }

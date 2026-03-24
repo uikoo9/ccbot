@@ -1,9 +1,11 @@
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync, statSync } from 'fs';
 import { resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { createFeishuClient, createEventDispatcher, startWsClient, sendReply } from './feishu.js';
 import { runClaude, type ClaudeConfig } from './claude.js';
 import { SessionManager } from './session.js';
+
+const SUPPORTED_COMMANDS = ['/new', '/stop', '/status', '/version', '/add-dir'] as const;
 
 interface Config {
   feishu: {
@@ -37,7 +39,7 @@ async function main() {
   const config = loadConfig();
   const client = createFeishuClient(config.feishu);
 
-  const sessionManager = new SessionManager(async (message, sessionId, isNew, reply, signal) => {
+  const sessionManager = new SessionManager(async (message, sessionId, isNew, reply, signal, addDirs) => {
     console.log(`[${sessionId}] Processing message: ${message.substring(0, 100)}...`);
     try {
       await reply('正在处理...');
@@ -46,7 +48,7 @@ async function main() {
     }
 
     try {
-      const result = await runClaude(message, sessionId, isNew, config.claude, signal);
+      const result = await runClaude(message, sessionId, isNew, config.claude, signal, addDirs);
       console.log(`[${sessionId}] Claude completed, output length: ${result?.length || 0}`);
       await reply(result || '(无输出)');
     } catch (err: unknown) {
@@ -69,42 +71,86 @@ async function main() {
     console.log(`[${chatId}] Received message: ${text.substring(0, 100)}...`);
     const replyFn = (msg: string) => sendReply(client, messageId, msg);
 
-    if (text === '/new') {
-      sessionManager.resetSession(chatId);
-      replyFn('会话已重置，开始新的对话').catch((err) => {
-        console.error(`[${chatId}] Failed to send /new reply:`, err);
-      });
-      return;
-    }
+    // 命令处理
+    if (text.startsWith('/')) {
+      const [cmd, ...args] = text.split(/\s+/);
 
-    if (text === '/stop') {
-      const stopped = sessionManager.stopSession(chatId);
-      replyFn(stopped ? '已终止当前请求' : '当前没有正在执行的请求').catch((err) => {
-        console.error(`[${chatId}] Failed to send /stop reply:`, err);
-      });
-      return;
-    }
+      switch (cmd) {
+        case '/new': {
+          sessionManager.resetSession(chatId);
+          replyFn('会话已重置，开始新的对话').catch((err) => {
+            console.error(`[${chatId}] Failed to send /new reply:`, err);
+          });
+          return;
+        }
 
-    if (text === '/status') {
-      const info = sessionManager.getSessionInfo(chatId);
-      if (!info) {
-        replyFn('暂无会话').catch((err) => {
-          console.error(`[${chatId}] Failed to send /status reply:`, err);
-        });
-      } else {
-        const msg = `Session: ${info.sessionId}\n项目目录: ${config.claude.workDir}\n状态: ${info.busy ? '执行中' : '空闲'}\n队列: ${info.queueLength} 条`;
-        replyFn(msg).catch((err) => {
-          console.error(`[${chatId}] Failed to send /status reply:`, err);
-        });
+        case '/stop': {
+          const stopped = sessionManager.stopSession(chatId);
+          replyFn(stopped ? '已终止当前请求' : '当前没有正在执行的请求').catch((err) => {
+            console.error(`[${chatId}] Failed to send /stop reply:`, err);
+          });
+          return;
+        }
+
+        case '/status': {
+          const info = sessionManager.getSessionInfo(chatId);
+          if (!info) {
+            replyFn('暂无会话').catch((err) => {
+              console.error(`[${chatId}] Failed to send /status reply:`, err);
+            });
+          } else {
+            const dirs = info.addDirs.length > 0 ? `\n额外目录: ${info.addDirs.join(', ')}` : '';
+            const msg = `Session: ${info.sessionId}\n项目目录: ${config.claude.workDir}${dirs}\n状态: ${info.busy ? '执行中' : '空闲'}\n队列: ${info.queueLength} 条`;
+            replyFn(msg).catch((err) => {
+              console.error(`[${chatId}] Failed to send /status reply:`, err);
+            });
+          }
+          return;
+        }
+
+        case '/version': {
+          replyFn(`CCBot v${getVersion()}`).catch((err) => {
+            console.error(`[${chatId}] Failed to send /version reply:`, err);
+          });
+          return;
+        }
+
+        case '/add-dir': {
+          const dirPath = args.join(' ').trim();
+          if (!dirPath) {
+            replyFn('用法: /add-dir <目录路径>').catch((err) => {
+              console.error(`[${chatId}] Failed to send /add-dir reply:`, err);
+            });
+            return;
+          }
+          const resolvedPath = resolve(dirPath);
+          if (!existsSync(resolvedPath) || !statSync(resolvedPath).isDirectory()) {
+            replyFn(`目录不存在: ${resolvedPath}`).catch((err) => {
+              console.error(`[${chatId}] Failed to send /add-dir reply:`, err);
+            });
+            return;
+          }
+          const session = sessionManager.getSession(chatId);
+          if (session.addDirs.includes(resolvedPath)) {
+            replyFn(`目录已添加过: ${resolvedPath}`).catch((err) => {
+              console.error(`[${chatId}] Failed to send /add-dir reply:`, err);
+            });
+            return;
+          }
+          session.addDirs.push(resolvedPath);
+          replyFn(`已添加工作目录: ${resolvedPath}`).catch((err) => {
+            console.error(`[${chatId}] Failed to send /add-dir reply:`, err);
+          });
+          return;
+        }
+
+        default: {
+          replyFn(`未知命令: ${cmd}\n目前支持的命令: ${SUPPORTED_COMMANDS.join(', ')}`).catch((err) => {
+            console.error(`[${chatId}] Failed to send unknown command reply:`, err);
+          });
+          return;
+        }
       }
-      return;
-    }
-
-    if (text === '/version') {
-      replyFn(`CCBot v${getVersion()}`).catch((err) => {
-        console.error(`[${chatId}] Failed to send /version reply:`, err);
-      });
-      return;
     }
 
     const session = sessionManager.getSession(chatId);
