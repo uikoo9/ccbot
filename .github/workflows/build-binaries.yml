@@ -45,10 +45,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies and build
-        run: |
-          npm install
-          npm run build
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build ccbot package
+        run: npm run build -w @ccbot/cli
 
       - name: Bundle with esbuild
         working-directory: packages/ccbot
