@@ -76,7 +76,7 @@ On first run, you'll be prompted for configuration:
 ? Claude Code path: claude
 ? Feishu App ID: cli_xxx
 ? Feishu App Secret: ***
-? Timeout in ms: 600000
+? Timeout in ms: 3600000
 ```
 
 Config is saved to `ccbot.json` in the current directory. Subsequent runs skip the prompts.
@@ -118,7 +118,7 @@ Send these in the Feishu bot conversation:
   "claude": {
     "bin": "claude",
     "workDir": "/path/to/project",
-    "timeoutMs": 600000
+    "timeoutMs": 3600000
   }
 }
 ```

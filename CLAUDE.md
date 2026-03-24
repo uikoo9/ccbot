@@ -93,5 +93,5 @@ Feishu User → Feishu Cloud → WebSocket → CCBot Server (pm2) → claude --p
 - **Per-user sessions**: Each Feishu chat ID maps to a `UserSession` with a UUID-based Claude session ID. Supports `--resume` for continuing conversations and `--session-id` for new ones.
 - **Message queue**: FIFO per user. If Claude is busy, messages queue with position feedback. Processed sequentially to avoid concurrent Claude invocations on the same session.
 - **Process management**: pm2 runs the server as daemon, process named `ccbot-<project-dir>`.
-- **Claude invocation**: `claude --print --output-format text --dangerously-skip-permissions` with configurable timeout (default 10min). Reads `ANTHROPIC_AUTH_TOKEN` and `ANTHROPIC_BASE_URL` from `~/.claude/settings.json`.
+- **Claude invocation**: `claude --print --output-format text --dangerously-skip-permissions` with configurable timeout (default 1 hour). Reads `ANTHROPIC_AUTH_TOKEN` and `ANTHROPIC_BASE_URL` from `~/.claude/settings.json`.
 - **Feishu output**: Auto-detects Markdown via regex, sends as interactive cards vs plain text. Strips image markdown to link syntax. Auto-chunks at 4000 chars.

@@ -80,7 +80,7 @@ ccbot start
 ? Claude Code path: claude
 ? Feishu App ID: cli_xxx
 ? Feishu App Secret: ***
-? Timeout in ms: 600000
+? Timeout in ms: 3600000
 ```
 
 各项说明：
@@ -90,7 +90,7 @@ ccbot start
 | Claude Code path  | Claude Code 可执行文件路径，默认 `claude` |
 | Feishu App ID     | 飞书应用的 App ID                         |
 | Feishu App Secret | 飞书应用的 App Secret                     |
-| Timeout in ms     | 单次执行超时时间，默认 10 分钟            |
+| Timeout in ms     | 单次执行超时时间，默认 1 小时             |
 
 配置保存到当前目录的 `ccbot.json`，后续启动自动使用，无需重复填写。
 
@@ -137,18 +137,18 @@ ccbot logs     # 查看日志
   "claude": {
     "bin": "claude",
     "workDir": "/path/to/project",
-    "timeoutMs": 600000
+    "timeoutMs": 3600000
   }
 }
 ```
 
-| 字段             | 必填 | 默认值   | 说明                       |
-| ---------------- | ---- | -------- | -------------------------- |
-| feishu.appId     | 是   | -        | 飞书应用 App ID            |
-| feishu.appSecret | 是   | -        | 飞书应用 App Secret        |
-| claude.bin       | 否   | `claude` | Claude Code 可执行文件路径 |
-| claude.workDir   | 自动 | 当前目录 | Claude Code 工作目录       |
-| claude.timeoutMs | 否   | `600000` | 单次执行超时时间(ms)       |
+| 字段             | 必填 | 默认值    | 说明                       |
+| ---------------- | ---- | --------- | -------------------------- |
+| feishu.appId     | 是   | -         | 飞书应用 App ID            |
+| feishu.appSecret | 是   | -         | 飞书应用 App Secret        |
+| claude.bin       | 否   | `claude`  | Claude Code 可执行文件路径 |
+| claude.workDir   | 自动 | 当前目录  | Claude Code 工作目录       |
+| claude.timeoutMs | 否   | `3600000` | 单次执行超时时间(ms)       |
 
 **Claude API 配置**：CCBot 从 `~/.claude/settings.json` 的 `env.ANTHROPIC_AUTH_TOKEN` 和 `env.ANTHROPIC_BASE_URL` 读取 API 凭证。
 
