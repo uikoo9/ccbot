@@ -12,7 +12,7 @@
   "step2Code": "# 编辑 ~/.claude/settings.json：\n{\n  \"env\": {\n    \"ANTHROPIC_AUTH_TOKEN\": \"sk-xxx\",\n    \"ANTHROPIC_BASE_URL\": \"https://api.anthropic.com\"\n  }\n}",
   "step3Title": "第三步：安装 CLI 并启动",
   "step3Description": "进入你的项目目录，安装并启动 ccbot。首次运行会交互式提示填写配置信息",
-  "step3Code": "# 通过 npm 安装\nnpm install -g @ccbot/cli\n\n# 或通过脚本安装（Linux & macOS）\ncurl -fsSL https://www.ccbot.dev/install.sh | sh\n\n# 进入项目目录，启动 ccbot\ncd /path/to/your/project\nccbot start\n\n# 首次运行会提示填写：\n# ? Claude Code path: claude\n# ? Feishu App ID: cli_xxx\n# ? Feishu App Secret: ***\n# ? Timeout in ms: 3600000\n\n# 配置保存到 ccbot.json\n# Claude API 凭证从 ~/.claude/settings.json 读取",
+  "step3Code": "# 通过 npm 安装\nnpm install -g @ccbot/cli\n\n# 或通过脚本安装（Linux & macOS）\ncurl -fsSL https://www.ccbot.dev/install.sh | sh\n\n# Windows (PowerShell)\nirm https://www.ccbot.dev/install.ps1 | iex\n\n# 进入项目目录，启动 ccbot\ncd /path/to/your/project\nccbot start\n\n# 首次运行会提示填写：\n# ? Claude Code path: claude\n# ? Feishu App ID: cli_xxx\n# ? Feishu App Secret: ***\n# ? Timeout in ms: 3600000\n\n# 配置保存到 ccbot.json\n# Claude API 凭证从 ~/.claude/settings.json 读取",
   "step4Title": "第四步：享受 Claude 吧！",
   "step4Description": "在飞书、Slack、Discord 或 Telegram 群组中直接与 Claude Code 对话，@机器人即可开始",
   "footer": "用 ❤️ 为开发者打造 | 开源于 GitHub"
