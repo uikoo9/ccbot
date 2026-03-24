@@ -55,6 +55,20 @@ When the user says "发布新版本" (publish a new version):
 3. Show the command to the user for confirmation: `npx lerna publish 0.2.3 --yes`
 4. Only execute the command after the user explicitly confirms
 
+## Updating Documentation
+
+When the user says "更新说明文档" (update documentation):
+
+Update the following files to reflect the latest changes:
+
+- `README.md`
+- `packages/ccbot/README.md`
+- `packages/ccbot/README.zh-CN.md`
+- `packages/ccbot-index/messages/en.json`
+- `packages/ccbot-index/messages/zh.json`
+
+After updating, run `npm run lint` to ensure there are no errors.
+
 ## Architecture
 
 ### Message Flow
