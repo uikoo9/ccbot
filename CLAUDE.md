@@ -2,6 +2,28 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 必须遵守的规则
+
+- 方案
+  - 凡是涉及出方案，
+  - 必须有可靠的数据源才能做判断，例如官方文档
+  - 如果没有可靠数据源或者文档，可以向用户提问
+  - 这种情况允许说自己不知道
+- 修改：
+  - 凡是修改代码，
+  - 必须先输出要修改的点，
+  - 确认后才可以更改
+- 提交：
+  - 凡是commit代码，
+  - 必须先pull代码，
+  - 然后执行`npm run lint`，没有异常后才能继续
+  - 且要按diff概要修改产出commit msg
+  - 最后才能commit
+- push
+  - 凡是push代码
+  - 需要和用户先确认是否push
+  - 确认后才能继续
+
 ## Project Overview
 
 CCBot is a CLI tool that bridges Feishu (Lark) messaging with a local Claude Code instance. Users send messages to a Feishu bot, which forwards them to Claude Code's `--print` mode via WebSocket long connection (no public IP required), and returns responses through Feishu.
