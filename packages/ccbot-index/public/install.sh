@@ -112,7 +112,7 @@ check_existing() {
     if command -v ccbot &> /dev/null; then
         local current_version=$(ccbot --version 2>/dev/null || echo "unknown")
         echo -e "${YELLOW}CCBot is already installed (version: $current_version)${NC}"
-        read -p "Do you want to reinstall? [y/N] " -n 1 -r
+        read -p "Do you want to reinstall? [y/N] " -n 1 -r < /dev/tty
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
             echo "Installation cancelled"
