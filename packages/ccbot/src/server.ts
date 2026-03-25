@@ -25,7 +25,10 @@ function loadConfig(): Config {
   return JSON.parse(raw);
 }
 
+declare const CCBOT_VERSION: string | undefined;
+
 function getVersion(): string {
+  if (typeof CCBOT_VERSION !== 'undefined') return CCBOT_VERSION;
   try {
     const pkgPath = resolve(fileURLToPath(import.meta.url), '../../package.json');
     const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));

@@ -8,8 +8,15 @@ import { fileURLToPath } from 'url';
 import { start, status, getProcessName } from '../dist/start.js';
 import { stop } from '../dist/stop.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const pkg = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json'), 'utf-8'));
+/* global CCBOT_VERSION */
+let version;
+try {
+  const __dirname = dirname(fileURLToPath(import.meta.url));
+  version = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json'), 'utf-8')).version;
+} catch {
+  version = typeof CCBOT_VERSION !== 'undefined' ? CCBOT_VERSION : 'unknown';
+}
+const pkg = { version };
 
 function resolveProcessName() {
   const configPath = resolve(process.cwd(), 'ccbot.json');

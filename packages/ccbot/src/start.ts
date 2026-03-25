@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { resolve, basename } from 'path';
+import { resolve, basename, dirname } from 'path';
 import inquirer from 'inquirer';
 import pc from 'picocolors';
 import { ensurePm2, connectPm2, startOrReload, disconnectPm2, savePm2 } from './pm2.js';
@@ -79,7 +79,12 @@ export async function start() {
   await connectPm2();
 
   try {
-    const serverScript = new URL('./server.js', import.meta.url).pathname;
+    let serverScript: string;
+    try {
+      serverScript = new URL('./server.js', import.meta.url).pathname;
+    } catch {
+      serverScript = resolve(dirname(process.argv[1]), '../dist/server.js');
+    }
     await startOrReload(processName, serverScript, configPath);
     savePm2();
     console.log(pc.green(`✔ ${processName} started. Use "ccbot logs" to view output.`));
