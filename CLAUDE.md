@@ -2,27 +2,27 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 必须遵守的规则
+## Mandatory Rules
 
-- 方案
-  - 凡是涉及出方案，
-  - 必须有可靠的数据源才能做判断，例如官方文档
-  - 如果没有可靠数据源或者文档，可以向用户提问
-  - 这种情况允许说自己不知道
-- 修改：
-  - 凡是修改代码，
-  - 必须先输出要修改的点，
-  - 确认后才可以更改
-- 提交：
-  - 凡是commit代码，
-  - 必须先pull代码，
-  - 然后执行`npm run lint`，没有异常后才能继续
-  - 且要按diff概要修改产出commit msg
-  - 最后才能commit
-- push
-  - 凡是push代码
-  - 需要和用户先确认是否push
-  - 确认后才能继续
+- Proposals
+  - When making proposals or technical decisions,
+  - must rely on trustworthy data sources, such as official documentation
+  - if no reliable data source or documentation is available, ask the user
+  - it is acceptable to say "I don't know" in such cases
+- Modifications
+  - When modifying code,
+  - must first list out the changes to be made,
+  - only proceed after the user confirms
+- Commits
+  - When committing code,
+  - must first pull the latest code,
+  - then run `npm run lint` and only continue if there are no errors
+  - write commit messages based on the diff summary
+  - only then commit
+- Push
+  - When pushing code,
+  - must confirm with the user before pushing
+  - only proceed after confirmation
 
 ## Project Overview
 
