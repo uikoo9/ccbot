@@ -29,24 +29,43 @@ export function createFeishuClient(config: FeishuConfig) {
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function extractPostText(content: Record<string, any>): string {
+  const lang = Object.keys(content)[0];
+  if (!lang) return '';
+  const post = content[lang];
+  const parts: string[] = [];
+  if (post.title) parts.push(post.title);
+  for (const paragraph of post.content || []) {
+    const line = paragraph
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .filter((el: any) => el.tag === 'text' || el.tag === 'a')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((el: any) => el.text || '')
+      .join('');
+    if (line) parts.push(line);
+  }
+  return parts.join('\n');
+}
+
 export function createEventDispatcher(onMessage: (chatId: string, messageId: string, text: string) => void) {
   return new lark.EventDispatcher({}).register({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     'im.message.receive_v1': async (data: any) => {
       const message = data.message;
-      if (!message || message.message_type !== 'text') return;
+      if (!message || (message.message_type !== 'text' && message.message_type !== 'post')) return;
 
       const chatId = message.chat_id;
       const messageId = message.message_id;
 
       try {
         const content = JSON.parse(message.content);
-        const text = content.text?.trim();
+        const text = message.message_type === 'post' ? extractPostText(content)?.trim() : content.text?.trim();
         if (text && chatId && messageId) {
           onMessage(chatId, messageId, text);
         }
       } catch {
-        // ignore non-text messages
+        // ignore unparseable messages
       }
     },
   });
