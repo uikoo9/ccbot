@@ -18,22 +18,8 @@
 
 ### 第一步：安装 CCBot
 
-**通过 npm：**
-
 ```bash
 npm install -g @ccbot/cli
-```
-
-**通过安装脚本（Linux & macOS）：**
-
-```bash
-curl -fsSL https://www.ccbot.dev/install.sh | sh
-```
-
-**通过安装脚本（Windows PowerShell）：**
-
-```powershell
-irm https://www.ccbot.dev/install.ps1 | iex
 ```
 
 如果本地没有 pm2，首次启动时会自动全局安装。

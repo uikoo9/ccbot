@@ -2,7 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { resolve, basename } from 'path';
 import inquirer from 'inquirer';
 import pc from 'picocolors';
-import { ensurePm2, connectPm2, startOrReload, disconnectPm2, savePm2 } from './pm2';
+import { ensurePm2 } from './pm2';
 
 const CONFIG_FILE = 'ccbot.json';
 
@@ -76,15 +76,22 @@ export async function start() {
   const processName = getProcessName(configPath);
 
   ensurePm2();
-  await connectPm2();
 
+  const { execSync } = await import('child_process');
   try {
-    const serverScript = resolve(__dirname, 'server.js');
-    await startOrReload(processName, serverScript, configPath);
-    savePm2();
+    // Check if process already exists, reload if so, otherwise start
+    try {
+      execSync(`pm2 describe ${processName}`, { stdio: 'pipe' });
+      execSync(`pm2 reload ${processName}`, { stdio: 'inherit' });
+    } catch {
+      const startCmd = `pm2 start ${resolve(__dirname, 'server.js')} --name ${processName} --log-date-format "YYYY-MM-DD HH:mm:ss" -- ${configPath}`;
+      execSync(startCmd, { stdio: 'inherit' });
+    }
+    execSync('pm2 save', { stdio: 'pipe' }).toString();
     console.log(pc.green(`✔ ${processName} started. Use "ccbot logs" to view output.`));
-  } finally {
-    disconnectPm2();
+    execSync('pm2 list', { stdio: 'inherit' });
+  } catch {
+    console.error(pc.red(`Failed to start ${processName}.`));
   }
 }
 
