@@ -1,1 +1,1 @@
-export { stop } from './start.js';
+export { stop } from './start';

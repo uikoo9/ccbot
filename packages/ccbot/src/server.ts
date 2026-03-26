@@ -1,9 +1,8 @@
 import { readFileSync, existsSync, statSync } from 'fs';
 import { resolve } from 'path';
-import { fileURLToPath } from 'url';
-import { createFeishuClient, createEventDispatcher, startWsClient, sendReply } from './feishu.js';
-import { runClaude, type ClaudeConfig } from './claude.js';
-import { SessionManager } from './session.js';
+import { createFeishuClient, createEventDispatcher, startWsClient, sendReply } from './feishu';
+import { runClaude, type ClaudeConfig } from './claude';
+import { SessionManager } from './session';
 
 const SUPPORTED_COMMANDS = ['/new', '/stop', '/status', '/version', '/add-dir'] as const;
 
@@ -25,12 +24,9 @@ function loadConfig(): Config {
   return JSON.parse(raw);
 }
 
-declare const CCBOT_VERSION: string | undefined;
-
 function getVersion(): string {
-  if (typeof CCBOT_VERSION !== 'undefined') return CCBOT_VERSION;
   try {
-    const pkgPath = resolve(fileURLToPath(import.meta.url), '../../package.json');
+    const pkgPath = resolve(__dirname, '..', 'package.json');
     const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
     return pkg.version || 'unknown';
   } catch {

@@ -1,22 +1,14 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports, no-undef */
 
-import { Command } from 'commander';
-import { execSync } from 'child_process';
-import { existsSync, readFileSync } from 'fs';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { start, status, getProcessName } from '../dist/start.js';
-import { stop } from '../dist/stop.js';
+const { Command } = require('commander');
+const { execSync } = require('child_process');
+const { existsSync, readFileSync } = require('fs');
+const { resolve } = require('path');
+const { start, status, getProcessName } = require('../dist/start');
+const { stop } = require('../dist/stop');
 
-/* global CCBOT_VERSION */
-let version;
-try {
-  const __dirname = dirname(fileURLToPath(import.meta.url));
-  version = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json'), 'utf-8')).version;
-} catch {
-  version = typeof CCBOT_VERSION !== 'undefined' ? CCBOT_VERSION : 'unknown';
-}
-const pkg = { version };
+const pkg = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json'), 'utf-8'));
 
 function resolveProcessName() {
   const configPath = resolve(process.cwd(), 'ccbot.json');
@@ -52,7 +44,7 @@ program
   .command('restart')
   .description('Restart ccbot server (use after updating)')
   .action(async () => {
-    const { restart } = await import('../dist/start.js');
+    const { restart } = require('../dist/start');
     await restart();
   });
 
@@ -60,7 +52,7 @@ program
   .command('delete')
   .description('Delete ccbot process from pm2')
   .action(async () => {
-    const { del } = await import('../dist/start.js');
+    const { del } = require('../dist/start');
     await del();
   });
 

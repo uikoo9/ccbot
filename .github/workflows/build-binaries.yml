@@ -51,16 +51,13 @@ jobs:
       - name: Build ccbot package
         run: npm run build -w @ccbot/cli
 
-      - name: Bundle with esbuild
-        run: npm run bundle -w @ccbot/cli
-
       - name: Install pkg
         run: npm install -g @yao-pkg/pkg
 
       - name: Build binary
         working-directory: packages/ccbot
         run: |
-          pkg bundle/ccbot.cjs --target ${{ matrix.target }} --output ccbot-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.os == 'win' && '.exe' || '' }}
+          pkg . --target ${{ matrix.target }} --output ccbot-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.os == 'win' && '.exe' || '' }}
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
