@@ -94,7 +94,6 @@ export async function stop() {
   const { execSync } = await import('child_process');
   try {
     execSync(`pm2 stop ${processName}`, { stdio: 'inherit' });
-    execSync(`pm2 delete ${processName}`, { stdio: 'inherit' });
     console.log(pc.green(`✔ ${processName} stopped.`));
   } catch {
     console.error(pc.red(`Failed to stop ${processName}. Is it running?`));
