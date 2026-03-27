@@ -1,18 +1,8 @@
 # CCBot
 
-Control your local Claude Code via Feishu (Lark) bot.
+Control your local Claude Code via IM bot (Feishu / WeCom / DingTalk / Slack / Telegram / Discord / Teams / WhatsApp, etc.)
 
 [中文文档](https://github.com/uikoo9/ccbot/blob/main/packages/ccbot/README.zh-CN.md)
-
-## Features
-
-- Feishu WebSocket long connection — no public IP required
-- Claude Code `--print` mode with session context
-- pm2 background process management
-- Per-user message queue
-- Auto-split long messages
-- Feishu Markdown rendering support
-- Configurable timeout
 
 ## Install
 

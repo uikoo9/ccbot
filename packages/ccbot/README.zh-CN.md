@@ -1,18 +1,8 @@
 # CCBot 中文文档
 
-通过飞书机器人控制本地 Claude Code。
+通过 IM 机器人（飞书 / 企业微信 / 钉钉 / Slack / Telegram / Discord / Teams / WhatsApp 等）控制本地 Claude Code。
 
 [English](https://github.com/uikoo9/ccbot/blob/main/packages/ccbot/README.md)
-
-## 特性
-
-- 飞书 WebSocket 长连接，无需公网 IP
-- Claude Code `--print` 模式，支持会话上下文
-- pm2 后台进程管理
-- 按用户消息队列排队执行
-- 超长输出自动分段发送
-- 飞书 Markdown 富文本渲染
-- 可配置超时时间
 
 ## 快速开始
 
