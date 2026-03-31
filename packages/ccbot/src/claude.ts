@@ -55,6 +55,7 @@ export function runClaude(
     console.log(`[${sessionId}] Spawning Claude: ${config.bin} ${args.slice(0, -1).join(' ')} -p <prompt>`);
 
     const env = { ...process.env };
+    delete env.CLAUDECODE;
     delete env.ANTHROPIC_AUTH_TOKEN;
     delete env.ANTHROPIC_BASE_URL;
     if (systemConfig.authToken) env.ANTHROPIC_AUTH_TOKEN = systemConfig.authToken;
