@@ -39,9 +39,11 @@ You can also import permissions via JSON:
 
 ## Configure Claude Code
 
-Ensure Claude Code is installed and configured with your API credentials.
+CCBot supports two authentication methods:
 
-Edit `~/.claude/settings.json`:
+**Option A: OAuth (Recommended)** — Run `claude login` to authenticate. No additional configuration needed.
+
+**Option B: API Key** — Edit `~/.claude/settings.json`:
 
 ```json
 {
@@ -71,7 +73,7 @@ On first run, you'll be prompted for configuration:
 
 Config is saved to `ccbot.json` in the current directory. Subsequent runs skip the prompts.
 
-**Note**: CCBot reads Claude API credentials from `~/.claude/settings.json`, allowing multiple CCBot projects to share the same credentials.
+**Note**: If using API Key mode, CCBot reads credentials from `~/.claude/settings.json`, allowing multiple CCBot projects to share the same credentials. OAuth users don't need this configuration.
 
 ### Commands
 
@@ -113,7 +115,7 @@ Send these in the Feishu bot conversation:
 }
 ```
 
-**Claude API Config**: CCBot reads API credentials from `env.ANTHROPIC_AUTH_TOKEN` and `env.ANTHROPIC_BASE_URL` in `~/.claude/settings.json`.
+**Claude API Config**: CCBot supports OAuth login (via `claude login`) or API Key mode (via `env.ANTHROPIC_AUTH_TOKEN` and `env.ANTHROPIC_BASE_URL` in `~/.claude/settings.json`).
 
 ## License
 

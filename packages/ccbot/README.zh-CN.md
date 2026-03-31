@@ -43,9 +43,11 @@ npm install -g @ccbot/cli
 
 ### 第三步：配置 Claude Code
 
-确保已安装并配置 Claude Code 的 API 凭证。
+CCBot 支持两种认证方式：
 
-编辑 `~/.claude/settings.json`：
+**方式一：OAuth 登录（推荐）** — 运行 `claude login` 完成认证，无需额外配置。
+
+**方式二：API Key** — 编辑 `~/.claude/settings.json`：
 
 ```json
 {
@@ -84,7 +86,7 @@ ccbot start
 
 配置保存到当前目录的 `ccbot.json`，后续启动自动使用，无需重复填写。
 
-**注意**：CCBot 会从 `~/.claude/settings.json` 读取 Claude API 配置，多个 CCBot 项目共享同一套凭证。
+**注意**：使用 API Key 模式时，CCBot 会从 `~/.claude/settings.json` 读取凭证，多个 CCBot 项目共享同一套凭证。OAuth 用户无需此配置。
 
 ### 第五步：在飞书中使用
 
@@ -140,7 +142,7 @@ ccbot logs     # 查看日志
 | claude.workDir   | 自动 | 当前目录  | Claude Code 工作目录       |
 | claude.timeoutMs | 否   | `3600000` | 单次执行超时时间(ms)       |
 
-**Claude API 配置**：CCBot 从 `~/.claude/settings.json` 的 `env.ANTHROPIC_AUTH_TOKEN` 和 `env.ANTHROPIC_BASE_URL` 读取 API 凭证。
+**Claude API 配置**：CCBot 支持 OAuth 登录（通过 `claude login`）或 API Key 模式（通过 `~/.claude/settings.json` 中的 `env.ANTHROPIC_AUTH_TOKEN` 和 `env.ANTHROPIC_BASE_URL`）。
 
 注意：`ccbot.json` 包含敏感信息，请勿提交到版本控制。
 
