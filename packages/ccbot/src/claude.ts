@@ -36,8 +36,9 @@ export function runClaude(
   return new Promise((resolve, reject) => {
     const systemConfig = getClaudeSystemConfig();
     if (!systemConfig.authToken || !systemConfig.baseUrl) {
-      reject(new Error('Claude 配置未找到，请运行 claude config 或配置 ~/.claude/settings.json'));
-      return;
+      console.log(
+        `[${sessionId}] ANTHROPIC_AUTH_TOKEN 或 ANTHROPIC_BASE_URL 未配置，将使用 Claude Code 默认认证方式（如 OAuth）`,
+      );
     }
 
     const args = [
@@ -56,8 +57,8 @@ export function runClaude(
     const env = { ...process.env };
     delete env.ANTHROPIC_AUTH_TOKEN;
     delete env.ANTHROPIC_BASE_URL;
-    env.ANTHROPIC_AUTH_TOKEN = systemConfig.authToken;
-    env.ANTHROPIC_BASE_URL = systemConfig.baseUrl;
+    if (systemConfig.authToken) env.ANTHROPIC_AUTH_TOKEN = systemConfig.authToken;
+    if (systemConfig.baseUrl) env.ANTHROPIC_BASE_URL = systemConfig.baseUrl;
 
     const child = spawn(config.bin, args, {
       cwd: config.workDir,
