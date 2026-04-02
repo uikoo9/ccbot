@@ -1,0 +1,6 @@
+{
+  "memory": {
+    "enforce_rules": true,
+    "strict_mode": true
+  }
+}

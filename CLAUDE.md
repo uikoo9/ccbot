@@ -4,25 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Mandatory Rules
 
-- Proposals
-  - When making proposals or technical decisions,
-  - must rely on trustworthy data sources, such as official documentation
-  - if no reliable data source or documentation is available, ask the user
-  - it is acceptable to say "I don't know" in such cases
-- Modifications
-  - When modifying code,
-  - must first list out the changes to be made,
-  - only proceed after the user confirms
-- Commits
-  - When committing code,
-  - must first pull the latest code,
-  - then run `npm run lint` and only continue if there are no errors
-  - write commit messages based on the diff summary
-  - only then commit
-- Push
-  - When pushing code,
-  - must confirm with the user before pushing
-  - only proceed after confirmation
+- **Language**: English only — all code, comments, and UI text must be in English.
+- **Proposals**: Base technical decisions on official documentation. If unsure, ask; saying "I don't know" is better than hallucinating.
+- **Modifications**: List planned changes and get explicit user confirmation BEFORE editing files.
+- **Commits**:
+  1. Always `git pull` first to ensure synchronization.
+  2. Run `pnpm lint` (or `npm run lint`) — abort if it fails.
+  3. Generate commit message from diff summary.
+  4. Perform commit.
+- **Push**: Never `git push` automatically. Always wait for explicit user approval.
+- **Reliability**: Always provide a clear and complete reply. Never output an empty response.
 
 ## Common Commands
 
