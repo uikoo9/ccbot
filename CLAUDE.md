@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Modifications**: List planned changes and get explicit user confirmation BEFORE editing files.
 - **Commits**:
   1. Always `git pull` first to ensure synchronization.
-  2. Run `pnpm lint` (or `npm run lint`) — abort if it fails.
+  2. Run `npm run lint` — abort if it fails.
   3. Generate commit message from diff summary.
   4. Perform commit.
 - **Push**: Never `git push` automatically. Always wait for explicit user approval.
