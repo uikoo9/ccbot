@@ -37,7 +37,7 @@ export function runClaude(
     const systemConfig = getClaudeSystemConfig();
     if (!systemConfig.authToken || !systemConfig.baseUrl) {
       console.log(
-        `[${sessionId}] ANTHROPIC_AUTH_TOKEN 或 ANTHROPIC_BASE_URL 未配置，将使用 Claude Code 默认认证方式（如 OAuth）`,
+        `[${sessionId}] ANTHROPIC_AUTH_TOKEN or ANTHROPIC_BASE_URL not configured, using Claude Code default auth (e.g. OAuth)`,
       );
     }
 
@@ -73,13 +73,13 @@ export function runClaude(
     const onAbort = () => {
       console.log(`[${sessionId}] Aborting Claude process`);
       child.kill('SIGTERM');
-      reject(new Error('已终止'));
+      reject(new Error('Aborted'));
     };
 
     if (signal) {
       if (signal.aborted) {
         child.kill('SIGTERM');
-        reject(new Error('已终止'));
+        reject(new Error('Aborted'));
         return;
       }
       signal.addEventListener('abort', onAbort, { once: true });
@@ -98,7 +98,7 @@ export function runClaude(
     const timer = setTimeout(() => {
       console.log(`[${sessionId}] Claude timeout after ${config.timeoutMs}ms`);
       child.kill('SIGTERM');
-      reject(new Error('执行超时'));
+      reject(new Error('Execution timeout'));
     }, config.timeoutMs);
 
     child.on('close', (code) => {

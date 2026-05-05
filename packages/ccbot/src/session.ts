@@ -43,7 +43,7 @@ class UserSession {
     if (this.busy) {
       const pos = this.queue.length + 1;
       console.log(`[${this.sessionId}] Message queued, position: ${pos}`);
-      await reply(`已排队，前面还有 ${pos} 条消息`);
+      await reply(`Queued — ${pos} message(s) ahead of you`);
       this.queue.push({ message, reply });
       return;
     }

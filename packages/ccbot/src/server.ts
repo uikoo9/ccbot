@@ -41,7 +41,7 @@ async function main() {
   const sessionManager = new SessionManager(async (message, sessionId, isNew, reply, signal, addDirs) => {
     console.log(`[${sessionId}] Processing message: ${message.substring(0, 100)}...`);
     try {
-      await reply('正在处理...');
+      await reply('Processing...');
     } catch (err) {
       console.error(`[${sessionId}] Failed to send "processing" message:`, err);
     }
@@ -49,15 +49,15 @@ async function main() {
     try {
       const result = await runClaude(message, sessionId, isNew, config.claude, signal, addDirs);
       console.log(`[${sessionId}] Claude completed, output length: ${result?.length || 0}`);
-      await reply(result || '(无输出)');
+      await reply(result || '(no output)');
     } catch (err: unknown) {
       console.error(`[${sessionId}] Error:`, err);
       const errMsg =
-        err instanceof Error && err.message === '执行超时'
-          ? '执行超时，请重试或简化问题'
-          : err instanceof Error && err.message === '已终止'
-            ? '已终止当前请求'
-            : `执行出错: ${err instanceof Error ? err.message : String(err)}`;
+        err instanceof Error && err.message === 'Execution timeout'
+          ? 'Execution timeout, please retry or simplify your question'
+          : err instanceof Error && err.message === 'Aborted'
+            ? 'Request aborted'
+            : `Error: ${err instanceof Error ? err.message : String(err)}`;
       try {
         await reply(errMsg);
       } catch (replyErr) {
@@ -70,14 +70,14 @@ async function main() {
     console.log(`[${chatId}] Received message: ${text.substring(0, 100)}...`);
     const replyFn = (msg: string) => sendReply(client, messageId, msg);
 
-    // 命令处理
+    // Command handling
     if (text.startsWith('/')) {
       const [cmd, ...args] = text.split(/\s+/);
 
       switch (cmd) {
         case '/new': {
           sessionManager.resetSession(chatId);
-          replyFn('会话已重置，开始新的对话').catch((err) => {
+          replyFn('Session reset. Starting a new conversation.').catch((err) => {
             console.error(`[${chatId}] Failed to send /new reply:`, err);
           });
           return;
@@ -85,7 +85,7 @@ async function main() {
 
         case '/stop': {
           const stopped = sessionManager.stopSession(chatId);
-          replyFn(stopped ? '已终止当前请求' : '当前没有正在执行的请求').catch((err) => {
+          replyFn(stopped ? 'Current request aborted.' : 'No running request to stop.').catch((err) => {
             console.error(`[${chatId}] Failed to send /stop reply:`, err);
           });
           return;
@@ -94,12 +94,12 @@ async function main() {
         case '/status': {
           const info = sessionManager.getSessionInfo(chatId);
           if (!info) {
-            replyFn('暂无会话').catch((err) => {
+            replyFn('No active session.').catch((err) => {
               console.error(`[${chatId}] Failed to send /status reply:`, err);
             });
           } else {
-            const dirs = info.addDirs.length > 0 ? `\n额外目录: ${info.addDirs.join(', ')}` : '';
-            const msg = `Session: ${info.sessionId}\n项目目录: ${config.claude.workDir}${dirs}\n状态: ${info.busy ? '执行中' : '空闲'}\n队列: ${info.queueLength} 条`;
+            const dirs = info.addDirs.length > 0 ? `\nExtra dirs: ${info.addDirs.join(', ')}` : '';
+            const msg = `Session: ${info.sessionId}\nWork dir: ${config.claude.workDir}${dirs}\nStatus: ${info.busy ? 'busy' : 'idle'}\nQueue: ${info.queueLength}`;
             replyFn(msg).catch((err) => {
               console.error(`[${chatId}] Failed to send /status reply:`, err);
             });
@@ -117,34 +117,34 @@ async function main() {
         case '/add-dir': {
           const dirPath = args.join(' ').trim();
           if (!dirPath) {
-            replyFn('用法: /add-dir <目录路径>').catch((err) => {
+            replyFn('Usage: /add-dir <directory-path>').catch((err) => {
               console.error(`[${chatId}] Failed to send /add-dir reply:`, err);
             });
             return;
           }
           const resolvedPath = resolve(dirPath);
           if (!existsSync(resolvedPath) || !statSync(resolvedPath).isDirectory()) {
-            replyFn(`目录不存在: ${resolvedPath}`).catch((err) => {
+            replyFn(`Directory not found: ${resolvedPath}`).catch((err) => {
               console.error(`[${chatId}] Failed to send /add-dir reply:`, err);
             });
             return;
           }
           const session = sessionManager.getSession(chatId);
           if (session.addDirs.includes(resolvedPath)) {
-            replyFn(`目录已添加过: ${resolvedPath}`).catch((err) => {
+            replyFn(`Directory already added: ${resolvedPath}`).catch((err) => {
               console.error(`[${chatId}] Failed to send /add-dir reply:`, err);
             });
             return;
           }
           session.addDirs.push(resolvedPath);
-          replyFn(`已添加工作目录: ${resolvedPath}`).catch((err) => {
+          replyFn(`Working directory added: ${resolvedPath}`).catch((err) => {
             console.error(`[${chatId}] Failed to send /add-dir reply:`, err);
           });
           return;
         }
 
         default: {
-          replyFn(`未知命令: ${cmd}\n目前支持的命令: ${SUPPORTED_COMMANDS.join(', ')}`).catch((err) => {
+          replyFn(`Unknown command: ${cmd}\nSupported commands: ${SUPPORTED_COMMANDS.join(', ')}`).catch((err) => {
             console.error(`[${chatId}] Failed to send unknown command reply:`, err);
           });
           return;
@@ -155,7 +155,7 @@ async function main() {
     const session = sessionManager.getSession(chatId);
     session.enqueue(text, replyFn).catch((err) => {
       console.error(`[${chatId}] Enqueue failed:`, err);
-      replyFn('系统错误，请稍后重试').catch((replyErr) => {
+      replyFn('System error, please try again later.').catch((replyErr) => {
         console.error(`[${chatId}] Failed to send error reply:`, replyErr);
       });
     });
