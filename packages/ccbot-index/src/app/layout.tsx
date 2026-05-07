@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getLocale } from 'next-intl/server';
+import { cookies } from 'next/headers';
 import { Providers } from './providers';
 import { WebsiteSchema } from '@/components/WebsiteSchema';
+import { DEFAULT_THEME, type Theme, THEMES } from '@/constants/theme';
 import './styles.css';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -11,8 +13,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = locale === 'zh' ? 'ccbot.dev - Claude Code 机器人' : 'ccbot.dev - Claude Code Bot';
   const description =
     locale === 'zh'
-      ? '在飞书、Slack、Discord、Telegram 等平台上使用 Claude Code，强大的聊天机器人界面。'
-      : 'Use Claude Code on Feishu, Slack, Discord, Telegram and more. A powerful bot interface for Claude CLI.';
+      ? '几分钟内将 Claude Code 连接到飞书、Slack、Discord 和 Telegram，无需服务端框架。'
+      : 'Connect Claude Code to Feishu, Slack, Discord and Telegram in minutes. No server framework required.';
 
   return {
     metadataBase: new URL('https://ccbot.dev'),
@@ -42,12 +44,6 @@ export async function generateMetadata(): Promise<Metadata> {
     publisher: 'ccbot.dev',
     alternates: {
       canonical: '/',
-      languages: {
-        en: '/en',
-        zh: '/zh',
-        'en-US': '/en',
-        'zh-CN': '/zh',
-      },
     },
     robots: {
       index: true,
@@ -62,7 +58,13 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     manifest: '/manifest.json',
     icons: {
-      icon: [{ url: '/favicon.ico', sizes: 'any' }],
+      icon: [
+        { url: '/favicon.ico', sizes: 'any' },
+        { url: '/favicon-16.png', sizes: '16x16', type: 'image/png' },
+        { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
+        { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+        { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+      ],
       apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
     },
     openGraph: {
@@ -116,9 +118,12 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
   const messages = await getMessages();
+  const cookieStore = await cookies();
+  const rawTheme = cookieStore.get('theme')?.value;
+  const theme: Theme = THEMES.includes(rawTheme as Theme) ? (rawTheme as Theme) : DEFAULT_THEME;
 
   return (
-    <html lang={locale} suppressHydrationWarning key={locale}>
+    <html lang={locale} data-theme={theme} suppressHydrationWarning key={locale}>
       <head>
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

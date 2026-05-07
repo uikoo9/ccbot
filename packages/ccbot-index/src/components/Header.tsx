@@ -1,16 +1,16 @@
 'use client';
 
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { ThemeSwitcher } from './ThemeSwitcher';
 
 export function Header() {
   return (
     <header className="header">
       <div className="header-content">
-        {/* Logo - Left */}
         <h1 className="logo">CCBot.dev</h1>
 
-        {/* Right side buttons */}
         <div className="header-actions">
+          <ThemeSwitcher />
           <LanguageSwitcher />
           <a
             href="https://github.com/uikoo9/ccbot"

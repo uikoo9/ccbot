@@ -2,7 +2,8 @@
 
 import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
-import { Steps } from '@/components/Steps';
+import { Platforms } from '@/components/Platforms';
+import { Features } from '@/components/Features';
 import { Footer } from '@/components/Footer';
 
 export function PageContent() {
@@ -10,7 +11,8 @@ export function PageContent() {
     <div className="page-container" suppressHydrationWarning>
       <Header />
       <Hero />
-      <Steps />
+      <Platforms />
+      <Features />
       <Footer />
     </div>
   );

@@ -1,11 +1,11 @@
 {
-  "name": "ccbot.dev",
+  "name": "ccbot.dev - Claude Code Bot",
   "short_name": "ccbot",
-  "description": "Use Claude Code on Feishu, Slack, Discord, Telegram and more",
+  "description": "Connect Claude Code to Feishu, Slack, Discord and Telegram in minutes",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0F172A",
-  "theme_color": "#22C55E",
+  "background_color": "#000000",
+  "theme_color": "#00CC66",
   "icons": [
     {
       "src": "/icon-192.png",

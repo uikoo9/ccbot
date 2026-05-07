@@ -8,7 +8,7 @@ export function WebsiteSchema() {
         url: 'https://ccbot.dev',
         name: 'ccbot.dev',
         description:
-          'Use Claude Code on Feishu, Slack, Discord, Telegram and more. A powerful bot interface for Claude CLI.',
+          'Connect Claude Code to Feishu, Slack, Discord and Telegram in minutes. No server framework required.',
         publisher: {
           '@id': 'https://ccbot.dev/#organization',
         },
@@ -47,7 +47,7 @@ export function WebsiteSchema() {
           '@id': 'https://ccbot.dev/#organization',
         },
         description:
-          'Use Claude Code on Feishu, Slack, Discord, Telegram and more. A powerful bot interface for Claude CLI.',
+          'Connect Claude Code to Feishu, Slack, Discord and Telegram in minutes. No server framework required.',
         inLanguage: ['en-US', 'zh-CN'],
       },
       {
@@ -65,8 +65,7 @@ export function WebsiteSchema() {
           ratingValue: '5',
           ratingCount: '1',
         },
-        description:
-          'A bot interface for Claude Code CLI that lets you use Claude directly in Feishu, Slack, Discord and Telegram.',
+        description: 'A bot bridge for Claude Code CLI that connects to Feishu, Slack, Discord and Telegram.',
         url: 'https://ccbot.dev',
         screenshot: 'https://static-small.vincentqiao.com/ccbot.png',
       },
