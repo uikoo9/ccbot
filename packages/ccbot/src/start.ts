@@ -52,6 +52,12 @@ async function ensureConfig(): Promise<string> {
       message: 'Work directory (press enter for current directory):',
       default: '',
     },
+    {
+      type: 'confirm',
+      name: 'logPrompt',
+      message: 'Log prompt content in server logs?',
+      default: true,
+    },
   ]);
 
   const config = {
@@ -63,6 +69,7 @@ async function ensureConfig(): Promise<string> {
       bin: answers.claudeBin.trim(),
       workDir: answers.workDir.trim() || process.cwd(),
       timeoutMs: answers.timeoutMs,
+      logPrompt: answers.logPrompt,
     },
   };
 

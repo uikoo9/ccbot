@@ -38,8 +38,14 @@ async function main() {
   const config = loadConfig();
   const client = createFeishuClient(config.feishu);
 
+  const logPrompt = config.claude.logPrompt !== false;
+
   const sessionManager = new SessionManager(async (message, sessionId, isNew, reply, signal, addDirs) => {
-    console.log(`[${sessionId}] Processing message: ${message.substring(0, 100)}...`);
+    console.log(
+      logPrompt
+        ? `[${sessionId}] Processing message: ${message.substring(0, 100)}...`
+        : `[${sessionId}] Processing message`,
+    );
     try {
       await reply('Processing...');
     } catch (err) {
@@ -67,7 +73,9 @@ async function main() {
   });
 
   const eventDispatcher = createEventDispatcher((chatId, messageId, text) => {
-    console.log(`[${chatId}] Received message: ${text.substring(0, 100)}...`);
+    console.log(
+      logPrompt ? `[${chatId}] Received message: ${text.substring(0, 100)}...` : `[${chatId}] Received message`,
+    );
     const replyFn = (msg: string) => sendReply(client, messageId, msg);
 
     // Command handling

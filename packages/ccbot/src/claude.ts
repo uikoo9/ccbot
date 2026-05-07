@@ -7,6 +7,7 @@ export interface ClaudeConfig {
   bin: string;
   workDir: string;
   timeoutMs: number;
+  logPrompt: boolean;
 }
 
 function getClaudeSystemConfig(): { authToken?: string; baseUrl?: string } {
