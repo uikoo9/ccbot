@@ -1,13 +1,22 @@
-import { spawn } from 'child_process';
+import { execSync, spawn } from 'child_process';
 import { readFileSync, existsSync } from 'fs';
 import { homedir } from 'os';
 import { resolve } from 'path';
+import { query } from '@anthropic-ai/claude-agent-sdk';
+import type { SpawnOptions, SpawnedProcess, Options, SDKResultMessage } from '@anthropic-ai/claude-agent-sdk';
 
 export interface ClaudeConfig {
   bin: string;
   workDir: string;
   timeoutMs: number;
   logPrompt: boolean;
+  model?: string;
+}
+
+export interface ClaudeResult {
+  text: string;
+  sdkSessionId?: string;
+  costUsd?: number;
 }
 
 function getClaudeSystemConfig(): { authToken?: string; baseUrl?: string } {
@@ -26,100 +35,144 @@ function getClaudeSystemConfig(): { authToken?: string; baseUrl?: string } {
   }
 }
 
+const isWindows = process.platform === 'win32';
+
+function resolveClaudePath(configBin?: string): string {
+  if (configBin && configBin !== 'claude') return configBin;
+  if (process.env.CLAUDE_EXECUTABLE_PATH) return process.env.CLAUDE_EXECUTABLE_PATH;
+  try {
+    const cmd = isWindows ? 'where claude' : 'which claude';
+    return execSync(cmd, { encoding: 'utf-8' }).trim().split(/\r?\n/)[0];
+  } catch {
+    return isWindows ? 'claude' : '/usr/local/bin/claude';
+  }
+}
+
+function createCustomSpawn(systemConfig: {
+  authToken?: string;
+  baseUrl?: string;
+}): (options: SpawnOptions) => SpawnedProcess {
+  return (options: SpawnOptions): SpawnedProcess => {
+    const baseEnv =
+      options.env && Object.keys(options.env).length > 0 ? { ...process.env, ...options.env } : { ...process.env };
+
+    const env: Record<string, string> = {};
+    for (const [key, value] of Object.entries(baseEnv)) {
+      if (!key.startsWith('CLAUDE') && value !== undefined) {
+        env[key] = value;
+      }
+    }
+
+    if (systemConfig.authToken) env.ANTHROPIC_AUTH_TOKEN = systemConfig.authToken;
+    if (systemConfig.baseUrl) env.ANTHROPIC_BASE_URL = systemConfig.baseUrl;
+
+    const child = spawn(options.command, options.args, {
+      cwd: options.cwd,
+      env,
+      signal: options.signal,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+
+    return child as unknown as SpawnedProcess;
+  };
+}
+
 export function runClaude(
   prompt: string,
   sessionId: string,
   isNew: boolean,
   config: ClaudeConfig,
   signal?: AbortSignal,
-  addDirs?: string[],
-): Promise<string> {
-  return new Promise((resolve, reject) => {
+  modelOverride?: string,
+): Promise<ClaudeResult> {
+  return new Promise((resolvePromise, reject) => {
     const systemConfig = getClaudeSystemConfig();
-    if (!systemConfig.authToken || !systemConfig.baseUrl) {
+    if (!systemConfig.authToken && !systemConfig.baseUrl) {
       console.log(
         `[${sessionId}] ANTHROPIC_AUTH_TOKEN or ANTHROPIC_BASE_URL not configured, using Claude Code default auth (e.g. OAuth)`,
       );
     }
 
-    const args = [
-      '--print',
-      '--output-format',
-      'text',
-      ...(isNew ? ['--session-id', sessionId] : ['--resume', sessionId]),
-      '--dangerously-skip-permissions',
-      ...(addDirs || []).flatMap((dir) => ['--add-dir', dir]),
-      '-p',
-      prompt,
-    ];
-
-    console.log(`[${sessionId}] Spawning Claude: ${config.bin} ${args.slice(0, -1).join(' ')} -p <prompt>`);
-
-    const env = { ...process.env };
-    delete env.CLAUDECODE;
-    delete env.ANTHROPIC_AUTH_TOKEN;
-    delete env.ANTHROPIC_BASE_URL;
-    if (systemConfig.authToken) env.ANTHROPIC_AUTH_TOKEN = systemConfig.authToken;
-    if (systemConfig.baseUrl) env.ANTHROPIC_BASE_URL = systemConfig.baseUrl;
-
-    const child = spawn(config.bin, args, {
-      cwd: config.workDir,
-      env,
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-
-    let stdout = '';
-    let stderr = '';
-
-    const onAbort = () => {
-      console.log(`[${sessionId}] Aborting Claude process`);
-      child.kill('SIGTERM');
-      reject(new Error('Aborted'));
-    };
+    const abortController = new AbortController();
 
     if (signal) {
       if (signal.aborted) {
-        child.kill('SIGTERM');
         reject(new Error('Aborted'));
         return;
       }
-      signal.addEventListener('abort', onAbort, { once: true });
+      signal.addEventListener('abort', () => abortController.abort(), { once: true });
     }
-
-    child.stdout.on('data', (data: Buffer) => {
-      stdout += data.toString();
-    });
-
-    child.stderr.on('data', (data: Buffer) => {
-      const chunk = data.toString();
-      stderr += chunk;
-      console.error(`[${sessionId}] Claude stderr:`, chunk);
-    });
 
     const timer = setTimeout(() => {
       console.log(`[${sessionId}] Claude timeout after ${config.timeoutMs}ms`);
-      child.kill('SIGTERM');
-      reject(new Error('Execution timeout'));
+      abortController.abort();
     }, config.timeoutMs);
 
-    child.on('close', (code) => {
-      clearTimeout(timer);
-      signal?.removeEventListener('abort', onAbort);
-      console.log(`[${sessionId}] Claude exited with code ${code}`);
-      if (code === 0) {
-        resolve(stdout.trim());
-      } else {
-        const errorMsg = stderr || `Claude exited with code ${code}`;
-        console.error(`[${sessionId}] Claude error:`, errorMsg);
-        reject(new Error(errorMsg));
-      }
-    });
+    const queryOptions: Options = {
+      permissionMode: 'bypassPermissions',
+      allowDangerouslySkipPermissions: true,
+      cwd: config.workDir,
+      abortController,
+      spawnClaudeCodeProcess: createCustomSpawn(systemConfig),
+      pathToClaudeCodeExecutable: resolveClaudePath(config.bin),
+    };
 
-    child.on('error', (err) => {
-      clearTimeout(timer);
-      signal?.removeEventListener('abort', onAbort);
-      console.error(`[${sessionId}] Claude spawn error:`, err);
-      reject(err);
-    });
+    if (!isNew && sessionId) {
+      queryOptions.resume = sessionId;
+    }
+
+    const model = modelOverride || config.model;
+    if (model) {
+      queryOptions.model = model;
+    }
+
+    console.log(`[${sessionId}] Starting Claude via SDK, cwd: ${config.workDir}, resume: ${!isNew}`);
+
+    (async () => {
+      let resultText = '';
+      let sdkSessionId: string | undefined;
+      let costUsd: number | undefined;
+
+      try {
+        const stream = query({ prompt, options: queryOptions });
+
+        for await (const message of stream) {
+          if ('session_id' in message && message.session_id) {
+            sdkSessionId = message.session_id as string;
+          }
+          if (message.type === 'result') {
+            const resultMsg = message as SDKResultMessage;
+            costUsd = resultMsg.total_cost_usd;
+            if (resultMsg.subtype === 'success') {
+              resultText = resultMsg.result || '';
+            } else {
+              throw new Error(resultMsg.errors?.join('; ') || 'Claude execution failed');
+            }
+          }
+        }
+      } catch (err: unknown) {
+        if (err instanceof Error && (err.name === 'AbortError' || err.message === 'This operation was aborted')) {
+          if (signal?.aborted) {
+            throw new Error('Aborted'); // eslint-disable-line preserve-caught-error
+          }
+          throw new Error('Execution timeout'); // eslint-disable-line preserve-caught-error
+        }
+        throw err;
+      }
+
+      console.log(
+        `[${sessionId}] Claude completed via SDK, output length: ${resultText.length}, cost: $${costUsd?.toFixed(4) || '?'}, sdkSessionId: ${sdkSessionId?.slice(0, 8) || 'none'}`,
+      );
+      return { text: resultText, sdkSessionId, costUsd };
+    })()
+      .then((result) => {
+        clearTimeout(timer);
+        resolvePromise(result);
+      })
+      .catch((err) => {
+        clearTimeout(timer);
+        console.error(`[${sessionId}] Claude SDK error:`, err);
+        reject(err);
+      });
   });
 }

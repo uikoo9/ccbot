@@ -24,11 +24,11 @@
   "feature2Title": "始终可靠",
   "feature2Desc": "内置消息队列优雅处理并发请求。超时保护和 PM2 进程管理确保机器人 7×24 小时在线。",
   "feature3Title": "会话控制",
-  "feature3Desc": "完整的上下文对话和会话持久化。通过聊天中的斜杠命令直接控制执行。",
+  "feature3Desc": "完整的上下文对话和会话持久化。随时切换模型、追踪费用，通过斜杠命令直接控制执行。",
   "feature4Title": "灵活认证",
   "feature4Desc": "支持 Claude OAuth 登录或 API Key 模式。首次启动时交互式引导配置，无需手动编辑 JSON。",
   "feature5Title": "开发者控制",
-  "feature5Desc": "通过 /add-dir 扩展工作目录，支持多仓库项目。可开关 Prompt 日志记录，保护共享环境隐私。",
+  "feature5Desc": "通过 /model 实时切换模型，通过 /cost 追踪会话费用，可开关 Prompt 日志记录保护共享环境隐私。",
 
   "getStarted": "开始使用",
   "step1Title": "第一步：创建飞书机器人",

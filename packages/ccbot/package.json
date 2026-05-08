@@ -1,6 +1,7 @@
 {
   "name": "@ccbot/cli",
   "version": "1.0.4",
+  "type": "module",
   "description": "Control Claude Code via Feishu bot",
   "bin": {
     "ccbot": "./bin/ccbot.js"
@@ -33,6 +34,7 @@
     "url": "https://github.com/uikoo9/ccbot/issues"
   },
   "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.2.0",
     "@larksuiteoapi/node-sdk": "^1.59.0",
     "commander": "^13.0.0",
     "inquirer": "^12.0.0",

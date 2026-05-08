@@ -82,7 +82,7 @@ const features: FeatureData[] = [
     icon: <TerminalIcon />,
     titleKey: 'feature3Title',
     descKey: 'feature3Desc',
-    tags: ['/new', '/stop', '/status', '/version'],
+    tags: ['/new', '/stop', '/model', '/cost'],
   },
   {
     icon: <KeyIcon />,

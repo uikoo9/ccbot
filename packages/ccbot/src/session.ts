@@ -5,20 +5,21 @@ interface QueueItem {
   reply: (text: string) => Promise<void>;
 }
 
-class UserSession {
+export class UserSession {
   sessionId: string;
   isNew = true;
   queue: QueueItem[] = [];
   busy = false;
   abortController: AbortController | null = null;
-  addDirs: string[] = [];
+  model?: string;
+  totalCostUsd = 0;
   private processor: (
     message: string,
     sessionId: string,
     isNew: boolean,
     reply: (text: string) => Promise<void>,
     signal: AbortSignal,
-    addDirs: string[],
+    session: UserSession,
   ) => Promise<void>;
 
   constructor(processor: UserSession['processor']) {
@@ -26,9 +27,18 @@ class UserSession {
     this.processor = processor;
   }
 
+  updateSessionId(sdkSessionId: string) {
+    this.sessionId = sdkSessionId;
+  }
+
+  addCost(costUsd: number) {
+    this.totalCostUsd += costUsd;
+  }
+
   reset() {
     this.sessionId = uuidv4();
     this.isNew = true;
+    this.totalCostUsd = 0;
   }
 
   stop() {
@@ -52,21 +62,13 @@ class UserSession {
     console.log(`[${this.sessionId}] Starting to process message`);
     try {
       this.abortController = new AbortController();
-      await this.processor(message, this.sessionId, this.isNew, reply, this.abortController.signal, this.addDirs);
+      await this.processor(message, this.sessionId, this.isNew, reply, this.abortController.signal, this);
       this.abortController = null;
-      this.isNew = false;
       while (this.queue.length > 0) {
         const next = this.queue.shift()!;
         console.log(`[${this.sessionId}] Processing next queued message, ${this.queue.length} remaining`);
         this.abortController = new AbortController();
-        await this.processor(
-          next.message,
-          this.sessionId,
-          this.isNew,
-          next.reply,
-          this.abortController.signal,
-          this.addDirs,
-        );
+        await this.processor(next.message, this.sessionId, this.isNew, next.reply, this.abortController.signal, this);
         this.abortController = null;
       }
     } catch (err) {
@@ -78,6 +80,14 @@ class UserSession {
       console.log(`[${this.sessionId}] Finished processing, busy=false`);
     }
   }
+}
+
+export interface SessionInfo {
+  sessionId: string;
+  queueLength: number;
+  busy: boolean;
+  model?: string;
+  totalCostUsd: number;
 }
 
 export class SessionManager {
@@ -113,14 +123,15 @@ export class SessionManager {
     return false;
   }
 
-  getSessionInfo(chatId: string): { sessionId: string; queueLength: number; busy: boolean; addDirs: string[] } | null {
+  getSessionInfo(chatId: string): SessionInfo | null {
     const session = this.sessions.get(chatId);
     if (!session) return null;
     return {
       sessionId: session.sessionId,
       queueLength: session.queue.length,
       busy: session.busy,
-      addDirs: session.addDirs,
+      model: session.model,
+      totalCostUsd: session.totalCostUsd,
     };
   }
 }

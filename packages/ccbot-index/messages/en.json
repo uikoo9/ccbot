@@ -24,11 +24,11 @@
   "feature2Title": "Always Reliable",
   "feature2Desc": "Built-in message queue handles concurrent requests gracefully. Timeout protection and PM2 process management keep your bot online 24/7.",
   "feature3Title": "Session Control",
-  "feature3Desc": "Full context-aware conversations with session persistence. Control execution with slash commands directly from your chat.",
+  "feature3Desc": "Full context-aware conversations with session persistence. Switch models on the fly, track costs, and control execution with slash commands.",
   "feature4Title": "Flexible Auth",
   "feature4Desc": "Works with Claude OAuth login or API Key mode. Interactive setup wizard runs on first launch — no manual JSON editing required.",
   "feature5Title": "Developer Control",
-  "feature5Desc": "Expand the working directory with /add-dir for multi-repo projects. Toggle prompt logging for privacy in shared environments.",
+  "feature5Desc": "Runtime model switching via /model, session cost tracking via /cost, and prompt logging control for privacy in shared environments.",
 
   "getStarted": "Get Started",
   "step1Title": "Step 1: Create Feishu Bot",

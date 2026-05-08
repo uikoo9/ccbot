@@ -1,12 +1,15 @@
 #!/usr/bin/env node
-/* eslint-disable @typescript-eslint/no-require-imports, no-undef */
 
-const { Command } = require('commander');
-const { execSync } = require('child_process');
-const { existsSync, readFileSync } = require('fs');
-const { resolve } = require('path');
-const { start, status, getProcessName } = require('../dist/start');
-const { stop } = require('../dist/stop');
+import { Command } from 'commander';
+import { execSync } from 'child_process';
+import { existsSync, readFileSync } from 'fs';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { start, status, getProcessName } from '../dist/start.js';
+import { stop } from '../dist/stop.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const pkg = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json'), 'utf-8'));
 
@@ -44,7 +47,7 @@ program
   .command('restart')
   .description('Restart ccbot server (use after updating)')
   .action(async () => {
-    const { restart } = require('../dist/start');
+    const { restart } = await import('../dist/start.js');
     await restart();
   });
 
@@ -52,7 +55,7 @@ program
   .command('delete')
   .description('Delete ccbot process from pm2')
   .action(async () => {
-    const { del } = require('../dist/start');
+    const { del } = await import('../dist/start.js');
     await del();
   });
 

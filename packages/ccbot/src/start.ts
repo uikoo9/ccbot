@@ -2,7 +2,12 @@ import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { resolve, basename } from 'path';
 import inquirer from 'inquirer';
 import pc from 'picocolors';
-import { ensurePm2 } from './pm2';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import { ensurePm2 } from './pm2.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const CONFIG_FILE = 'ccbot.json';
 

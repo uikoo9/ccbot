@@ -109,12 +109,17 @@ ccbot logs     # 查看日志
 
 在飞书机器人对话中发送：
 
-| 命令       | 说明                                                 |
-| ---------- | ---------------------------------------------------- |
-| `/new`     | 重置会话，开始新对话                                 |
-| `/stop`    | 终止当前正在执行的请求，并清空排队消息               |
-| `/status`  | 查看当前会话状态（Session ID、是否执行中、队列长度） |
-| `/version` | 查看 CCBot 版本号                                    |
+| 命令            | 说明                                             |
+| --------------- | ------------------------------------------------ |
+| `/new`          | 重置会话，开始新对话                             |
+| `/stop`         | 终止当前正在执行的请求，并清空排队消息           |
+| `/status`       | 查看当前会话状态（Session ID、模型、队列长度等） |
+| `/model [name]` | 查看或切换模型                                   |
+| `/cost`         | 查看当前会话累计花费                             |
+| `/version`      | 查看 CCBot 版本号                                |
+| `/help`         | 显示可用命令列表                                 |
+
+未识别的 `/命令` 会作为普通消息发送给 Claude。
 
 ## 配置文件
 
@@ -129,18 +134,20 @@ ccbot logs     # 查看日志
   "claude": {
     "bin": "claude",
     "workDir": "/path/to/project",
-    "timeoutMs": 3600000
+    "timeoutMs": 3600000,
+    "model": "claude-sonnet-4-6"
   }
 }
 ```
 
-| 字段             | 必填 | 默认值    | 说明                       |
-| ---------------- | ---- | --------- | -------------------------- |
-| feishu.appId     | 是   | -         | 飞书应用 App ID            |
-| feishu.appSecret | 是   | -         | 飞书应用 App Secret        |
-| claude.bin       | 否   | `claude`  | Claude Code 可执行文件路径 |
-| claude.workDir   | 自动 | 当前目录  | Claude Code 工作目录       |
-| claude.timeoutMs | 否   | `3600000` | 单次执行超时时间(ms)       |
+| 字段             | 必填 | 默认值    | 说明                           |
+| ---------------- | ---- | --------- | ------------------------------ |
+| feishu.appId     | 是   | -         | 飞书应用 App ID                |
+| feishu.appSecret | 是   | -         | 飞书应用 App Secret            |
+| claude.bin       | 否   | `claude`  | Claude Code 可执行文件路径     |
+| claude.workDir   | 自动 | 当前目录  | Claude Code 工作目录           |
+| claude.timeoutMs | 否   | `3600000` | 单次执行超时时间(ms)           |
+| claude.model     | 否   | -         | 模型名称，也可通过 /model 切换 |
 
 **Claude API 配置**：CCBot 支持 OAuth 登录（通过 `claude login`）或 API Key 模式（通过 `~/.claude/settings.json` 中的 `env.ANTHROPIC_AUTH_TOKEN` 和 `env.ANTHROPIC_BASE_URL`）。
 

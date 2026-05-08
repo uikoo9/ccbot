@@ -1,10 +1,13 @@
-import { readFileSync, existsSync, statSync } from 'fs';
+import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { createFeishuClient, createEventDispatcher, startWsClient, sendReply } from './feishu';
-import { runClaude, type ClaudeConfig } from './claude';
-import { SessionManager } from './session';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import { createFeishuClient, createEventDispatcher, startWsClient, sendReply } from './feishu.js';
+import { runClaude, type ClaudeConfig } from './claude.js';
+import { SessionManager } from './session.js';
 
-const SUPPORTED_COMMANDS = ['/new', '/stop', '/status', '/version', '/add-dir'] as const;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 interface Config {
   feishu: {
@@ -34,13 +37,24 @@ function getVersion(): string {
   }
 }
 
+const HELP_TEXT = `Available commands:
+/new — Start a new conversation
+/stop — Abort current request
+/status — Show session info
+/model [name] — View or switch model
+/cost — Show session cost
+/version — Show ccbot version
+/help — Show this help
+
+Other /commands will be sent to Claude as prompts.`;
+
 async function main() {
   const config = loadConfig();
   const client = createFeishuClient(config.feishu);
 
   const logPrompt = config.claude.logPrompt !== false;
 
-  const sessionManager = new SessionManager(async (message, sessionId, isNew, reply, signal, addDirs) => {
+  const sessionManager = new SessionManager(async (message, sessionId, isNew, reply, signal, session) => {
     console.log(
       logPrompt
         ? `[${sessionId}] Processing message: ${message.substring(0, 100)}...`
@@ -53,9 +67,23 @@ async function main() {
     }
 
     try {
-      const result = await runClaude(message, sessionId, isNew, config.claude, signal, addDirs);
-      console.log(`[${sessionId}] Claude completed, output length: ${result?.length || 0}`);
-      await reply(result || '(no output)');
+      const { text, sdkSessionId, costUsd } = await runClaude(
+        message,
+        sessionId,
+        isNew,
+        config.claude,
+        signal,
+        session.model,
+      );
+      if (sdkSessionId) {
+        session.updateSessionId(sdkSessionId);
+        session.isNew = false;
+      }
+      if (costUsd) {
+        session.addCost(costUsd);
+      }
+      console.log(`[${sessionId}] Claude completed, output length: ${text?.length || 0}`);
+      await reply(text || '(no output)');
     } catch (err: unknown) {
       console.error(`[${sessionId}] Error:`, err);
       const errMsg =
@@ -78,7 +106,6 @@ async function main() {
     );
     const replyFn = (msg: string) => sendReply(client, messageId, msg);
 
-    // Command handling
     if (text.startsWith('/')) {
       const [cmd, ...args] = text.split(/\s+/);
 
@@ -106,12 +133,39 @@ async function main() {
               console.error(`[${chatId}] Failed to send /status reply:`, err);
             });
           } else {
-            const dirs = info.addDirs.length > 0 ? `\nExtra dirs: ${info.addDirs.join(', ')}` : '';
-            const msg = `Session: ${info.sessionId}\nWork dir: ${config.claude.workDir}${dirs}\nStatus: ${info.busy ? 'busy' : 'idle'}\nQueue: ${info.queueLength}`;
+            const model = info.model || config.claude.model || 'default';
+            const cost = info.totalCostUsd > 0 ? `\nCost: $${info.totalCostUsd.toFixed(4)}` : '';
+            const msg = `Session: ${info.sessionId}\nWork dir: ${config.claude.workDir}\nModel: ${model}\nStatus: ${info.busy ? 'busy' : 'idle'}\nQueue: ${info.queueLength}${cost}`;
             replyFn(msg).catch((err) => {
               console.error(`[${chatId}] Failed to send /status reply:`, err);
             });
           }
+          return;
+        }
+
+        case '/model': {
+          const modelName = args.join(' ').trim();
+          const session = sessionManager.getSession(chatId);
+          if (!modelName) {
+            const current = session.model || config.claude.model || 'default';
+            replyFn(`Current model: ${current}`).catch((err) => {
+              console.error(`[${chatId}] Failed to send /model reply:`, err);
+            });
+          } else {
+            session.model = modelName;
+            replyFn(`Model switched to: ${modelName}`).catch((err) => {
+              console.error(`[${chatId}] Failed to send /model reply:`, err);
+            });
+          }
+          return;
+        }
+
+        case '/cost': {
+          const info = sessionManager.getSessionInfo(chatId);
+          const cost = info ? info.totalCostUsd : 0;
+          replyFn(`Session cost: $${cost.toFixed(4)}`).catch((err) => {
+            console.error(`[${chatId}] Failed to send /cost reply:`, err);
+          });
           return;
         }
 
@@ -122,46 +176,21 @@ async function main() {
           return;
         }
 
-        case '/add-dir': {
-          const dirPath = args.join(' ').trim();
-          if (!dirPath) {
-            replyFn('Usage: /add-dir <directory-path>').catch((err) => {
-              console.error(`[${chatId}] Failed to send /add-dir reply:`, err);
-            });
-            return;
-          }
-          const resolvedPath = resolve(dirPath);
-          if (!existsSync(resolvedPath) || !statSync(resolvedPath).isDirectory()) {
-            replyFn(`Directory not found: ${resolvedPath}`).catch((err) => {
-              console.error(`[${chatId}] Failed to send /add-dir reply:`, err);
-            });
-            return;
-          }
-          const session = sessionManager.getSession(chatId);
-          if (session.addDirs.includes(resolvedPath)) {
-            replyFn(`Directory already added: ${resolvedPath}`).catch((err) => {
-              console.error(`[${chatId}] Failed to send /add-dir reply:`, err);
-            });
-            return;
-          }
-          session.addDirs.push(resolvedPath);
-          replyFn(`Working directory added: ${resolvedPath}`).catch((err) => {
-            console.error(`[${chatId}] Failed to send /add-dir reply:`, err);
+        case '/help': {
+          replyFn(HELP_TEXT).catch((err) => {
+            console.error(`[${chatId}] Failed to send /help reply:`, err);
           });
           return;
         }
 
-        default: {
-          replyFn(`Unknown command: ${cmd}\nSupported commands: ${SUPPORTED_COMMANDS.join(', ')}`).catch((err) => {
-            console.error(`[${chatId}] Failed to send unknown command reply:`, err);
-          });
-          return;
-        }
+        default:
+          break;
       }
     }
 
+    const prompt = text.startsWith('/') ? text.slice(1) : text;
     const session = sessionManager.getSession(chatId);
-    session.enqueue(text, replyFn).catch((err) => {
+    session.enqueue(prompt, replyFn).catch((err) => {
       console.error(`[${chatId}] Enqueue failed:`, err);
       replyFn('System error, please try again later.').catch((replyErr) => {
         console.error(`[${chatId}] Failed to send error reply:`, replyErr);

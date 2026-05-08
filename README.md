@@ -90,12 +90,17 @@ ccbot logs     # Show server logs
 
 Send these in the Feishu bot conversation:
 
-| Command    | Description                              |
-| ---------- | ---------------------------------------- |
-| `/new`     | Reset session, start a new conversation  |
-| `/stop`    | Stop the current request and clear queue |
-| `/status`  | Show current session status              |
-| `/version` | Show CCBot version                       |
+| Command         | Description                              |
+| --------------- | ---------------------------------------- |
+| `/new`          | Reset session, start a new conversation  |
+| `/stop`         | Stop the current request and clear queue |
+| `/status`       | Show current session status              |
+| `/model [name]` | View or switch model                     |
+| `/cost`         | Show session cost                        |
+| `/version`      | Show CCBot version                       |
+| `/help`         | Show available commands                  |
+
+Unrecognized `/commands` are passed to Claude as prompts.
 
 ## Config
 
@@ -110,10 +115,13 @@ Send these in the Feishu bot conversation:
   "claude": {
     "bin": "claude",
     "workDir": "/path/to/project",
-    "timeoutMs": 3600000
+    "timeoutMs": 3600000,
+    "model": "claude-sonnet-4-6"
   }
 }
 ```
+
+The `model` field is optional. If omitted, Claude Code uses its default model. You can also switch models per-session at runtime via `/model`.
 
 **Claude API Config**: CCBot supports OAuth login (via `claude login`) or API Key mode (via `env.ANTHROPIC_AUTH_TOKEN` and `env.ANTHROPIC_BASE_URL` in `~/.claude/settings.json`).
 
