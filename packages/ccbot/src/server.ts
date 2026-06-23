@@ -1,21 +1,11 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import { createFeishuClient, createEventDispatcher, startWsClient, sendReply } from './feishu.js';
-import { runClaude, type ClaudeConfig } from './claude.js';
+import { runClaude } from './claude.js';
 import { SessionManager } from './session.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-interface Config {
-  feishu: {
-    appId: string;
-    appSecret: string;
-  };
-  claude: ClaudeConfig;
-}
+import { createTextDispatcher } from './dispatch.js';
+import { startVicvic } from './vicvic.js';
+import type { Config } from './types.js';
 
 function loadConfig(): Config {
   const configPath = process.argv[2];
@@ -27,34 +17,11 @@ function loadConfig(): Config {
   return JSON.parse(raw);
 }
 
-function getVersion(): string {
-  try {
-    const pkgPath = resolve(__dirname, '..', 'package.json');
-    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
-    return pkg.version || 'unknown';
-  } catch {
-    return 'unknown';
-  }
-}
-
-const HELP_TEXT = `Available commands:
-/new — Start a new conversation
-/stop — Abort current request
-/status — Show session info
-/model [name] — View or switch model
-/cost — Show session cost
-/version — Show ccbot version
-/help — Show this help
-
-Other /commands will be sent to Claude as prompts.`;
-
-async function main() {
-  const config = loadConfig();
-  const client = createFeishuClient(config.feishu);
-
+// Claude run loop (adapter-agnostic): every queued prompt runs here and the
+// result is sent back via `reply`, whatever adapter (feishu / vicvic) produced it.
+function buildSessionManager(config: Config): SessionManager {
   const logPrompt = config.claude.logPrompt !== false;
-
-  const sessionManager = new SessionManager(async (message, sessionId, isNew, reply, signal, session) => {
+  return new SessionManager(async (message, sessionId, isNew, reply, signal, session) => {
     console.log(
       logPrompt
         ? `[${sessionId}] Processing message: ${message.substring(0, 100)}...`
@@ -99,106 +66,39 @@ async function main() {
       }
     }
   });
+}
 
-  const eventDispatcher = createEventDispatcher((chatId, messageId, text) => {
-    console.log(
-      logPrompt ? `[${chatId}] Received message: ${text.substring(0, 100)}...` : `[${chatId}] Received message`,
+async function main() {
+  const config = loadConfig();
+  const sessionManager = buildSessionManager(config);
+  const dispatch = createTextDispatcher(sessionManager, config);
+
+  let started = false;
+
+  // Feishu adapter (optional): each chat_id is its own session.
+  const feishu = config.feishu;
+  if (feishu?.appId) {
+    const client = createFeishuClient(feishu);
+    const eventDispatcher = createEventDispatcher((chatId, messageId, text) =>
+      dispatch(chatId, text, (msg) => sendReply(client, messageId, msg)),
     );
-    const replyFn = (msg: string) => sendReply(client, messageId, msg);
+    await startWsClient(feishu, eventDispatcher);
+    console.log('feishu adapter started');
+    started = true;
+  }
 
-    if (text.startsWith('/')) {
-      const [cmd, ...args] = text.split(/\s+/);
+  // vicvic.im adapter (optional): single outbound WS, one session per ccbot.
+  const vicvic = config.vicvic;
+  if (vicvic?.token) {
+    startVicvic(vicvic, dispatch, config.claude.logPrompt !== false);
+    console.log('vicvic adapter started');
+    started = true;
+  }
 
-      switch (cmd) {
-        case '/new': {
-          sessionManager.resetSession(chatId);
-          replyFn('Session reset. Starting a new conversation.').catch((err) => {
-            console.error(`[${chatId}] Failed to send /new reply:`, err);
-          });
-          return;
-        }
-
-        case '/stop': {
-          const stopped = sessionManager.stopSession(chatId);
-          replyFn(stopped ? 'Current request aborted.' : 'No running request to stop.').catch((err) => {
-            console.error(`[${chatId}] Failed to send /stop reply:`, err);
-          });
-          return;
-        }
-
-        case '/status': {
-          const info = sessionManager.getSessionInfo(chatId);
-          if (!info) {
-            replyFn('No active session.').catch((err) => {
-              console.error(`[${chatId}] Failed to send /status reply:`, err);
-            });
-          } else {
-            const model = info.model || config.claude.model || 'default';
-            const cost = info.totalCostUsd > 0 ? `\nCost: $${info.totalCostUsd.toFixed(4)}` : '';
-            const msg = `Session: ${info.sessionId}\nWork dir: ${config.claude.workDir}\nModel: ${model}\nStatus: ${info.busy ? 'busy' : 'idle'}\nQueue: ${info.queueLength}${cost}`;
-            replyFn(msg).catch((err) => {
-              console.error(`[${chatId}] Failed to send /status reply:`, err);
-            });
-          }
-          return;
-        }
-
-        case '/model': {
-          const modelName = args.join(' ').trim();
-          const session = sessionManager.getSession(chatId);
-          if (!modelName) {
-            const current = session.model || config.claude.model || 'default';
-            replyFn(`Current model: ${current}`).catch((err) => {
-              console.error(`[${chatId}] Failed to send /model reply:`, err);
-            });
-          } else {
-            session.model = modelName;
-            replyFn(`Model switched to: ${modelName}`).catch((err) => {
-              console.error(`[${chatId}] Failed to send /model reply:`, err);
-            });
-          }
-          return;
-        }
-
-        case '/cost': {
-          const info = sessionManager.getSessionInfo(chatId);
-          const cost = info ? info.totalCostUsd : 0;
-          replyFn(`Session cost: $${cost.toFixed(4)}`).catch((err) => {
-            console.error(`[${chatId}] Failed to send /cost reply:`, err);
-          });
-          return;
-        }
-
-        case '/version': {
-          replyFn(`CCBot v${getVersion()}`).catch((err) => {
-            console.error(`[${chatId}] Failed to send /version reply:`, err);
-          });
-          return;
-        }
-
-        case '/help': {
-          replyFn(HELP_TEXT).catch((err) => {
-            console.error(`[${chatId}] Failed to send /help reply:`, err);
-          });
-          return;
-        }
-
-        default:
-          break;
-      }
-    }
-
-    const prompt = text.startsWith('/') ? text.slice(1) : text;
-    const session = sessionManager.getSession(chatId);
-    session.enqueue(prompt, replyFn).catch((err) => {
-      console.error(`[${chatId}] Enqueue failed:`, err);
-      replyFn('System error, please try again later.').catch((replyErr) => {
-        console.error(`[${chatId}] Failed to send error reply:`, replyErr);
-      });
-    });
-  });
-
-  await startWsClient(config.feishu, eventDispatcher);
+  if (!started) {
+    console.error('No adapter configured (set feishu or vicvic in ccbot.json).');
+    process.exit(1);
+  }
   console.log(`ccbot server started. workDir: ${config.claude.workDir}`);
 }
 

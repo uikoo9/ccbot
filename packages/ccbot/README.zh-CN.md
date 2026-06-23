@@ -153,6 +153,31 @@ ccbot logs     # 查看日志
 
 注意：`ccbot.json` 包含敏感信息，请勿提交到版本控制。
 
+## 接入 vicvic.im
+
+除飞书外，CCBot 还能作为个人 **AI Agent** 接入 [vicvic.im](https://vicvic.im)——两个适配器共用同一套 Claude Code 会话循环、可并行运行（飞书与 vicvic 至少配置其一）。
+
+1. 在 vicvic.im 中打开左上角 **「+」** 菜单 → **添加 AI Bot**，设置昵称/头像，复制配对 token。
+2. 在 `ccbot.json` 增加 `vicvic` 配置块（飞书变为可选，可整块省略以只跑 vicvic）：
+
+```json
+{
+  "vicvic": {
+    "baseUrl": "https://api.vicvic.im",
+    "token": "ccbotpk_xxx"
+  },
+  "claude": {
+    "bin": "claude",
+    "workDir": "/path/to/project",
+    "timeoutMs": 3600000
+  }
+}
+```
+
+3. 运行 `ccbot start`。bot 通过 WebSocket 主动外连（本机无需公网地址），在 vicvic.im 的 AI Agents 列表中显示**在线**。在那里与它聊天即把消息转给本机 Claude Code 执行，回复异步以 IM 消息返回——关闭聊天或临时离线都不会丢回复。
+
+`ccbot start` 交互式配置也会询问 vicvic 的 URL 与 token；token 留空即跳过 vicvic。
+
 ## 其他
 
 - 私聊和群聊各自独立一个会话，同一个群内所有人共享同一个 Claude Code 会话

@@ -36,14 +36,12 @@ async function ensureConfig(): Promise<string> {
     {
       type: 'input',
       name: 'appId',
-      message: 'Feishu App ID:',
-      validate: (v: string) => (v.trim() ? true : 'App ID is required'),
+      message: 'Feishu App ID (leave blank to skip Feishu):',
     },
     {
       type: 'password',
       name: 'appSecret',
       message: 'Feishu App Secret:',
-      validate: (v: string) => (v.trim() ? true : 'App Secret is required'),
     },
     {
       type: 'number',
@@ -58,6 +56,17 @@ async function ensureConfig(): Promise<string> {
       default: '',
     },
     {
+      type: 'input',
+      name: 'vicvicBaseUrl',
+      message: 'vicvic.im server URL:',
+      default: 'https://api.vicvic.im',
+    },
+    {
+      type: 'password',
+      name: 'vicvicToken',
+      message: 'vicvic.im bot pairing token (leave blank to skip vicvic):',
+    },
+    {
       type: 'confirm',
       name: 'logPrompt',
       message: 'Log prompt content in server logs?',
@@ -65,11 +74,7 @@ async function ensureConfig(): Promise<string> {
     },
   ]);
 
-  const config = {
-    feishu: {
-      appId: answers.appId.trim(),
-      appSecret: answers.appSecret.trim(),
-    },
+  const config: Record<string, unknown> = {
     claude: {
       bin: answers.claudeBin.trim(),
       workDir: answers.workDir.trim() || process.cwd(),
@@ -77,6 +82,15 @@ async function ensureConfig(): Promise<string> {
       logPrompt: answers.logPrompt,
     },
   };
+  if (answers.appId.trim()) {
+    config.feishu = { appId: answers.appId.trim(), appSecret: answers.appSecret.trim() };
+  }
+  if (answers.vicvicToken.trim()) {
+    config.vicvic = {
+      baseUrl: answers.vicvicBaseUrl.trim() || 'https://api.vicvic.im',
+      token: answers.vicvicToken.trim(),
+    };
+  }
 
   writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
   console.log(pc.green(`✔ Config saved to ${configPath}\n`));

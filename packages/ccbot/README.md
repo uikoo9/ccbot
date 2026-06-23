@@ -125,6 +125,31 @@ The `model` field is optional. If omitted, Claude Code uses its default model. Y
 
 **Claude API Config**: CCBot supports OAuth login (via `claude login`) or API Key mode (via `env.ANTHROPIC_AUTH_TOKEN` and `env.ANTHROPIC_BASE_URL` in `~/.claude/settings.json`).
 
+## Connect to vicvic.im
+
+CCBot can connect to [vicvic.im](https://vicvic.im) as a personal **AI Agent** in addition to (or instead of) Feishu — both adapters share the same Claude Code session loop and run in parallel.
+
+1. In the vicvic.im app, open the left-side **"+"** menu → **Add AI Bot**, set a name/avatar, and copy the pairing token.
+2. Add a `vicvic` block to `ccbot.json` (Feishu becomes optional — leave it out to run vicvic-only):
+
+```json
+{
+  "vicvic": {
+    "baseUrl": "https://api.vicvic.im",
+    "token": "ccbotpk_xxx"
+  },
+  "claude": {
+    "bin": "claude",
+    "workDir": "/path/to/project",
+    "timeoutMs": 3600000
+  }
+}
+```
+
+3. Run `ccbot start`. The bot connects out over a WebSocket (no public address needed) and shows **online** in the vicvic.im AI Agents list. Chatting with it there routes your messages to this machine's Claude Code; replies come back asynchronously as IM messages — closing the chat or going offline never drops a reply.
+
+`ccbot start` will also prompt for the vicvic URL + token interactively; leave the token blank to skip vicvic.
+
 ## License
 
 MIT
